@@ -1,0 +1,498 @@
+{% extends "layout.html" %}
+{% block title %}Timelapse{% endblock %}
+
+{% block content %}
+<section>
+    <div class="container mt-5">
+        <div class="row mt-3 mb-1">
+            <div class="col">
+                <h1>Timelapse</h1>
+            </div>
+        </div>
+        <div class="row mb-3 d-none" id="progressBarPanel">
+            <div class="col">
+                <div class="progress" role="progressbar" aria-label="Progress bar" aria-valuenow="0" aria-valuemin="0"
+                    aria-valuemax="100" style="height:38px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated fs-6 p-2" id="progressBar"
+                        style="min-width:70px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="timelapseSettings">
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="startIso">Start ISO</label>
+                    <select class="form-select" id="startIso" required>
+                        <option selected value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="400">400</option>
+                        <option value="800">800</option>
+                        <option value="1600">1600</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="minIso">Min ISO</label>
+                    <select class="form-select" id="minIso" required>
+                        <option selected value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="400">400</option>
+                        <option value="800">800</option>
+                        <option value="1600">1600</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="maxIso">Max ISO</label>
+                    <select class="form-select" id="maxIso" required>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="400">400</option>
+                        <option value="800">800</option>
+                        <option selected value="1600">1600</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="priority">Ramping priority</label>
+                    <select class="form-select" id="priority" required>
+                        <option selected value="exposure">Exposure time</option>
+                        <option value="iso">ISO</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="startExposureTime">Start exposure time</label>
+                    <select class="form-select" id="startExposureTime" required>
+                        <option value="30000000">30s</option>
+                        <option value="25000000">25s</option>
+                        <option value="20000000">20s</option>
+                        <option value="16000000">16s</option>
+                        <option value="12000000">12s</option>
+                        <option value="8000000">8s</option>
+                        <option value="4000000">4s</option>
+                        <option value="2000000">2s</option>
+                        <option value="1000000">1s</option>
+                        <option value="500000">1/2s</option>
+                        <option value="250000">1/4s</option>
+                        <option value="125000">1/8s</option>
+                        <option value="66666">1/15s</option>
+                        <option value="33333">1/30s</option>
+                        <option selected value="16666">1/60s</option>
+                        <option value="8000">1/125s</option>
+                        <option value="4000">1/250s</option>
+                        <option value="2000">1/500s</option>
+                        <option value="1000">1/1000s</option>
+                        <option value="500">1/2000s</option>
+                        <option value="300">1/3200s</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="minExposureTime">Min exposure time</label>
+                    <select class="form-select" id="minExposureTime" required>
+                        <option value="30000000">30s</option>
+                        <option value="25000000">25s</option>
+                        <option value="20000000">20s</option>
+                        <option value="16000000">16s</option>
+                        <option value="12000000">12s</option>
+                        <option value="8000000">8s</option>
+                        <option value="4000000">4s</option>
+                        <option value="2000000">2s</option>
+                        <option value="1000000">1s</option>
+                        <option value="500000">1/2s</option>
+                        <option value="250000">1/4s</option>
+                        <option value="125000">1/8s</option>
+                        <option value="66666">1/15s</option>
+                        <option value="33333">1/30s</option>
+                        <option value="16666">1/60s</option>
+                        <option value="8000">1/125s</option>
+                        <option value="4000">1/250s</option>
+                        <option value="2000">1/500s</option>
+                        <option value="1000">1/1000s</option>
+                        <option value="500">1/2000s</option>
+                        <option selected value="300">1/3200s</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="maxExposureTime">Max exposure time</label>
+                    <select class="form-select" id="maxExposureTime" required>
+                        <option selected value="30000000">30s</option>
+                        <option value="25000000">25s</option>
+                        <option value="20000000">20s</option>
+                        <option value="16000000">16s</option>
+                        <option value="12000000">12s</option>
+                        <option value="8000000">8s</option>
+                        <option value="4000000">4s</option>
+                        <option value="2000000">2s</option>
+                        <option value="1000000">1s</option>
+                        <option value="500000">1/2s</option>
+                        <option value="250000">1/4s</option>
+                        <option value="125000">1/8s</option>
+                        <option value="66666">1/15s</option>
+                        <option value="33333">1/30s</option>
+                        <option value="16666">1/60s</option>
+                        <option value="8000">1/125s</option>
+                        <option value="4000">1/250s</option>
+                        <option value="2000">1/500s</option>
+                        <option value="1000">1/1000s</option>
+                        <option value="500">1/2000s</option>
+                        <option value="300">1/3200s</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="wb">White Balance</label>
+                    <select class="form-select" id="wb" required>
+                        <option selected value="day">Daylight</option>
+                        <option value="tungsten">Tungsten</option>
+                        <option value="fluorescent">Fluorescent</option>
+                        <option value="cloudy">Cloudy</option>
+                        <option value="indoor">Indoor</option>
+                    </select>
+                </div>
+            </div>
+            <!-- <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Custom WB</span>
+                    <input type="number" class="form-control" value="5000" aria-label="Custom WB"
+                        aria-describedby="Custom WB" id="custom_wb" disabled>
+                </div>
+            </div> -->
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="file_format">File type</label>
+                    <select class="form-select" id="file_format" required>
+                        <option selected value="dng">DNG</option>
+                        <option value="jpg">JPG</option>
+                        <option value="dng+jpg">DNG + JPG</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Number of photos</span>
+                    <input type="number" class="form-control" aria-label="Number of photos" min="1" value="1"
+                        aria-describedby="Number of photos" id="photos_number" required>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Seconds between photos</span>
+                    <input type="number" class="form-control" value="2" min="2" aria-label="Delay between photos"
+                        aria-describedby="Delay between photos" id="photos_delay" required>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Previews - 1 every</span>
+                    <input type="number" class="form-control" value="10" aria-label="Previews ratio"
+                        aria-describedby="Previews ratio" id="previews">
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+            </div>
+            <div class="col-12 col-lg-3">
+            </div>
+            <div class="col-12 col-lg-3">
+            </div>
+            <div class="col-12 col-lg-3">
+                <button type="button" class="btn btn-primary w-100 mb-4 d-block" id="startButton">Start!</button>
+                <button type="button" class="btn btn-danger w-100 mb-4 d-none" id="stopButton">Stop!</button>
+            </div>
+            <div class="col-12">
+                <div class="alert alert-danger d-none" role="alert" id="errors">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="monitoringSection" class="d-none">
+    <div class="container" id="monitoring">
+        <div class="row">
+            <div class="col-12">
+                <h3>Monitoring</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3" id="time">
+            </div>
+            <div class="col-12 col-md-6 mb-3 text-right d-none" id="status">
+            </div>
+        </div>
+        <div class="row" id="thumbs">
+
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h3>Log</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12" id="log">
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    let staticFolder = "{{ url_for('static', filename = '')}}";
+    let photos_number = 0;
+    let thumbs_number = 0;
+    let isTimelapseOngoing = true; // Set to true to force a refresh at launch
+    document.addEventListener("DOMContentLoaded", checkTimelapseOngoing);
+    document.getElementById("startButton").addEventListener("click", handleStart);
+    document.getElementById("stopButton").addEventListener("click", handleStop);
+
+    /**
+     * Handles the Start button.
+     */
+    async function handleStart() {
+        let startIso = getIntValue("startIso");
+        let minIso = getIntValue("minIso");
+        let maxIso = getIntValue("maxIso");
+        let startExposureTime = getIntValue("startExposureTime");
+        let minExposureTime = getIntValue("minExposureTime");
+        let maxExposureTime = getIntValue("maxExposureTime");
+        let priority = getValue("priority");
+        let wb = getValue("wb");
+        let custom_wb = 0; //document.getElementById("custom_wb").value || 0;
+        let file_format = getValue("file_format");
+        let photos_number = getIntValue("photos_number");
+        let photos_delay = getIntValue("photos_delay");
+        let previews = getIntValue("previews");
+        let body = { priority: priority, startIso: startIso, minIso: minIso, maxIso: maxIso, startExposureTime: startExposureTime, minExposureTime: minExposureTime, maxExposureTime: maxExposureTime, wb: wb, custom_wb: custom_wb, file_format: file_format, photos_delay: photos_delay, photos_number: photos_number, previews: previews };
+        if (validateForm(body)) {
+
+            prepapreForTimelapse(photos_number);
+            let resp = await fetch("/start_timelapse", {
+                method: "POST",
+                body: JSON.stringify(body),
+            });
+            isTimelapseOngoing = true;
+            thumbs_number = 0;
+            console.log("Starting TL")
+            setInterval(updateTimelapse, 2000)
+            let res = await resp.json();
+            if (res.error) {
+                document.getElementById("error").classList.replace("d-none", "d-block");
+            }
+        }
+    }
+
+    /**
+     * Handles the Stop button.
+     */
+    async function handleStop() {
+        isTimelapseOngoing = false;
+        let resp = await fetch("/stop_timelapse", {
+            method: "GET",
+        });
+        afterTimelapse();
+    }
+
+    /**
+     * Handles the preparations to start a timelapse.
+     * @param {number} photosToTake The number of photos to take.
+     */
+    function prepapreForTimelapse(photosToTake) {
+        document.getElementById("status").innerText = "Photos taken: 0 / " + photosToTake;
+        document.getElementById("progressBar").innerText = "0 / " + photosToTake;
+        document.getElementById("time").innerText = "CPU temp:";
+        document.getElementById("monitoringSection").classList.remove("d-none");
+        document.getElementById("progressBarPanel").classList.remove("d-none");
+        document.getElementById("stopButton").classList.remove("d-none");
+        document.getElementById("startButton").classList.add("d-none");
+        document.getElementById("stopButton").removeAttribute("disabled");
+        document.getElementById("log").innerText = "No data yet";
+        var thumbsNode = document.getElementById("thumbs");
+        while (thumbsNode.firstChild) {
+            thumbsNode.removeChild(thumbsNode.firstChild);
+        }
+        disable("startIso");
+        disable("minIso");
+        disable("maxIso");
+        disable("startExposureTime");
+        disable("minExposureTime");
+        disable("maxExposureTime");
+        disable("priority");
+        disable("wb");
+        disable("file_format");
+        disable("photos_number");
+        disable("photos_delay");
+        disable("previews");
+    }
+
+    /**
+     * Validates the form.
+     * @param {object} body All the parameters from the form.
+     * @return {string} The errors as a string, empty string if not.
+     */
+    function validateForm(body) {
+        let errors = "";
+        clearFieldInError("photos_number");
+        if (!body.photos_number) {
+            errors += "Photos number can't be empty.\n";
+            fieldInError("photos_number");
+            fieldInError("photos_number");
+        }
+        clearFieldInError("photos_delay");
+        if (!body.photos_delay) {
+            errors += "Photos interval can't be empty.\n";
+            fieldInError.push("photos_delay");
+            fieldInError("photos_delay");
+        }
+        if (body.photos_delay < (body.maxExposureTime / 1000000 + 2)) {
+            errors += "The photo interval must be at least 2 seconds longer than the Max Exposure time.\n";
+            fieldInError("photos_delay");
+        }
+        clearFieldInError("minIso");
+        clearFieldInError("maxIso");
+        if (!(body.minIso <= body.maxIso)) {
+            errors += "Min ISO must be smaller or equal to Max ISO.\n";
+            fieldInError("minIso");
+            fieldInError("maxIso");
+        }
+        clearFieldInError("startIso");
+        if (!((body.minIso <= body.startIso) && (body.maxIso >= body.startIso))) {
+            errors += "Start ISO must be within Min ISO and Max ISO.\n";
+            fieldInError("startIso");
+        }
+        clearFieldInError("minExposureTime");
+        clearFieldInError("maxExposureTime");
+        if (!(body.minExposureTime <= body.maxExposureTime)) {
+            errors += "Min Exposure time must be smaller or equal to Max Exposure time.\n";
+            fieldInError("minExposureTime");
+            fieldInError("maxExposureTime");
+        }
+        clearFieldInError("startExposureTime");
+        if (!((body.startExposureTime >= body.minExposureTime) && (body.maxExposureTime >= body.startExposureTime))) {
+            errors += "Start Exposure time must be within Min Exposure time and Max Exposure time.\n";
+            fieldInError("startExposureTime");
+        }
+        document.getElementById("errors").innerText = errors;
+        if (errors !== "") {
+            document.getElementById("errors").classList.remove("d-none");
+        } else {
+            document.getElementById("errors").classList.add("d-none");
+        }
+        return errors === "";
+    }
+
+    /**
+     * Checks if a timelapse is ongoing.
+     */
+    async function checkTimelapseOngoing() {
+        let resp = await fetch("/is_timelapse_ongoing", {
+            method: "GET",
+        });
+        let data = await resp.json()
+        console.log("Data", data);
+        isTimelapseOngoing = data.is_timelapse_ongoing;
+        if (data.is_timelapse_ongoing) {
+            setInterval(updateTimelapse, 2000);
+            prepapreForTimelapse();
+        }
+    }
+
+    /**
+     * Gets updates on the ongoing timelapse.
+     */
+    async function updateTimelapse() {
+        if (isTimelapseOngoing) {
+            let resp = await fetch("/update_timelapse", {
+                method: "GET",
+            });
+            let data = await resp.json()
+            if (data.is_timelapse_ongoing) {
+                isTimelapseOngoing = data.is_timelapse_ongoing;
+                document.getElementById("time").innerText = "CPU temp: " + data.cpu_temp + "° / CPU usage: " + data.cpu_usage;
+                document.getElementById("progressBar").innerText = data.photos_taken + " / " + data.photos_to_take;
+                //document.getElementById("progressBar").innerText = data.photos_taken + " / " + data.photos_to_take;
+                let widthPercent = Math.floor((data.photos_taken / data.photos_to_take) * 100);
+                document.getElementById("progressBar").setAttribute("style", "width:max(70px," + widthPercent + "%)");
+                document.getElementById("status").innerText = "Photos taken: " + data.photos_taken + " / " + data.photos_to_take;
+                if (widthPercent == 100) {
+                    afterTimelapse();
+                }
+                let log = "";
+                data.photos.forEach(photo => {
+                    log = "Photo " + photo.number + " / " + data.photos_to_take + " - Taken at " + photo.time + " - ISO: " + photo.iso + " - Exposure time: " + photo.speed + " - Brightness: " + photo.brightness + "\n" + log;
+                });
+                document.getElementById("log").innerText = log;
+                if (thumbs_number == 0 && data.thumbs.length > 0) {
+                    data.thumbs.forEach(thumb => {
+                        thumbs_number++;
+                        makeNewThumb(thumb);
+                    })
+                }
+                else if (data.thumbs.length > thumbs_number) {
+                    thumbs_number++;
+                    makeNewThumb(data.thumbs[data.thumbs.length - 1]);
+                }
+            } else {
+                if (isTimelapseOngoing) {
+                    isTimelapseOngoing = data.is_timelapse_ongoing;
+                    // toast/alert
+                    afterTimelapse();
+                }
+            }
+        }
+    }
+
+    /**
+     * Resets the page after a timelapse is finished.
+     */
+    function afterTimelapse() {
+        document.getElementById("progressBar").classList.remove("progress-bar-animated");
+        document.getElementById("startButton").classList.remove("d-none");
+        document.getElementById("stopButton").classList.add("d-none");
+        document.getElementById("timelapseSettings").classList.remove("d-none");
+        enable("startIso");
+        enable("minIso");
+        enable("maxIso");
+        enable("startExposureTime");
+        enable("minExposureTime");
+        enable("maxExposureTime");
+        enable("priority");
+        enable("wb");
+        enable("file_format");
+        enable("photos_number");
+        enable("photos_delay");
+        enable("previews");
+    }
+
+    /**
+     * Creates a new preview thumbnail.
+     * @param {object} data The thumbnail's data.
+     */
+    function makeNewThumb(data) {
+        let col = document.createElement('div');
+        col.classList.add("col-12", "col-md-6", "col-lg-4", "col-xxl-3", "mb-3");
+        let card = document.createElement('div');
+        card.classList.add("card", "w-100");
+        let thumb = document.createElement('img');
+        thumb.src = "/static/" + data.path;
+        thumb.classList.add("card-img-top");
+        card.appendChild(thumb);
+        let div = document.createElement('div');
+        div.innerText = data.time;
+        div.classList.add("text-center", "w-100", "p-1");
+        card.appendChild(div);
+        col.appendChild(card);
+
+        let thumbs = document.getElementById("thumbs");
+        if (thumbs.firstChild) thumbs.insertBefore(col, thumbs.firstChild);
+        else thumbs.appendChild(col);
+    }
+
+</script>
+{% endblock %}

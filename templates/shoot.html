@@ -1,0 +1,335 @@
+{% extends "layout.html" %}
+{% block title %}Shoot{% endblock %}
+
+{% block content %}
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path
+            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+    </symbol>
+    <symbol id="check" fill="currentColor" viewBox="0 0 16 16">
+        <path
+            d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z" />
+    </symbol>
+    <symbol id="triangle" fill="currentColor" viewBox="0 0 16 16">
+        <path
+            d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z" />
+    </symbol>
+    <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path
+            d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z" />
+        <path
+            d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.99 5z" />
+    </symbol>
+    <symbol id="trash" fill="currentColor" viewBox="0 0 16 16">
+        <path
+            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+        <path fill-rule="evenodd"
+            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+    </symbol>
+</svg>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mt-3 mb-3">
+                <h1>Take a single photo</h1>
+            </div>
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show d-none" role="alert">
+                    <strong>Great!</strong> Your photo have been taken successfully.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="error">
+                    <strong>Error!</strong> Your photo has not been taken.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-9 col-12 d-none d-lg-block">
+                <a href="#" target="_blank" id="bigPhotoLink"><img class="img-fluid mb-4"
+                        src="{{url_for('static', filename = 'placeholder.png')}}" id="bigPhoto" /></a>
+            </div>
+            <div class="col-lg-3 col-12">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="iso">ISO</label>
+                            <select class="form-select" id="iso">
+                                <option selected value="auto">Auto</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                                <option value="400">400</option>
+                                <option value="800">800</option>
+                                <option value="1600">1600</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="speed">Speed</label>
+                            <select class="form-select" id="speed">
+                                <option selected value="auto">Auto</option>
+                                <option value="100">1/100</option>
+                                <option value="200">1/200</option>
+                                <option value="400">1/400</option>
+                                <option value="800">1/800</option>
+                                <option value="1600">1/1600</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="wb">White Balance</label>
+                            <select class="form-select" id="wb">
+                                <option selected value="auto">Auto</option>
+                                <option value="day">Day light</option>
+                                <option value="tungsten">Tungsten</option>
+                                <option value="shadow">Shadow</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Custom WB</span>
+                            <input type="number" class="form-control" value="5000" aria-label="Custom WB"
+                                aria-describedby="Custom WB" id="custom_wb">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="file_format">File type</label>
+                            <select class="form-select" id="file_format">
+                                <option selected value="dng">DNG</option>
+                                <option value="jpg">JPG</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-center">
+                        <div class="spinner-border text-primary d-none" role="status" id="spinner">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+
+                        <button type="button" class="btn btn-primary w-100 mb-4 d-block"
+                            id="shootButton">Shoot!</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+<section>
+    <div class="container {% if not photos %}d-none{% endif %}" id="todaysPhotos">
+        <div class="row">
+            <div class="col-12">
+                <h3>Today's photos</h3>
+            </div>
+        </div>
+        <div class="row" id="thumbs">
+            {% for photo in photos -%}
+            <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+                <div class="card w-100" style="width: 18rem;">
+                    <img src="{{url_for('static', filename = photo['jpg_path'])}}" class="card-img-top" alt="...">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div class="fw-semibold">{{ photo['file_name'] }}</div>
+                            <div><a href="#" target="_blank">Delete</a>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div>ISO: NA</div>
+                            <div><a href="{{url_for('static', filename = photo['jpg_path'])}}" target="_blank">JPG</a>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div>Speed: NA</div>
+                            <div><a href="{{url_for('static', filename = photo['jpg_path'])}}" target="_blank">DNG</a>
+                            </div>
+                        </li>
+                        <li class="list-group-item">WB: NA</li>
+                    </ul>
+                </div>
+            </div>
+            {{ item }}
+            {%- endfor %}
+            <!-- <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+            <div class="card w-100" style="width: 18rem;">
+                <img src="{{url_for('static', filename = 'placeholder.png')}}" class="card-img-top" alt="...">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>ISO: 400</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">JPG</a></div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>Speed: 1/1000</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">DNG</a></div>
+                    </li>
+                    <li class="list-group-item">WB: Tungsten</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+            <div class="card w-100" style="width: 18rem;">
+                <img src="{{url_for('static', filename = 'placeholder.png')}}" class="card-img-top" alt="...">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>ISO: 400</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">JPG</a></div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>Speed: 1/1000</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">DNG</a></div>
+                    </li>
+                    <li class="list-group-item">WB: Tungsten</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+            <div class="card w-100" style="width: 18rem;">
+                <img src="{{url_for('static', filename = 'placeholder.png')}}" class="card-img-top" alt="...">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>ISO: 400</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">JPG</a></div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>Speed: 1/1000</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">DNG</a></div>
+                    </li>
+                    <li class="list-group-item">WB: Tungsten</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+            <div class="card w-100" style="width: 18rem;">
+                <img src="{{url_for('static', filename = 'placeholder.png')}}" class="card-img-top" alt="...">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div class="fw-semibold">2022-08-22_15-36-32</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">Delete</a>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>ISO: 400</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">JPG</a></div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>Speed: 1/1000</div>
+                        <div><a href="{{url_for('static', filename = 'placeholder.png')}}" target="_blank">DNG</a></div>
+                    </li>
+                    <li class="list-group-item">WB: Tungsten</li>
+                </ul>
+            </div>
+        </div>
+    </div>-->
+
+        </div>
+    </div>
+</section>
+<script>
+
+    document.getElementById("shootButton").addEventListener("click", handleShoot);
+
+    async function handleShoot() {
+        document.getElementById("shootButton").classList.replace("d-block", "d-none");
+        document.getElementById("spinner").classList.replace("d-none", "d-block");
+        let iso = document.getElementById("iso").value;
+        let speed = document.getElementById("speed").value;
+        let wb = document.getElementById("wb").value;
+        let custom_wb = document.getElementById("custom_wb").value;
+        let file_format = document.getElementById("file_format").value;
+        let body = { iso: iso, speed: speed, wb: wb, custom_wb: custom_wb, file_format: file_format };
+        let resp = await fetch("/doshoot", {
+            method: "POST",
+            body: JSON.stringify(body),
+        });
+
+        document.getElementById("shootButton").classList.replace("d-none", "d-block");
+        document.getElementById("spinner").classList.replace("d-block", "d-none");
+        let res = await resp.json();
+        if (res.error) {
+            document.getElementById("error").classList.replace("d-none", "d-block");
+        } else {
+            document.getElementById("todaysPhotos").classList.replace("d-none", "d-block");
+            makeNewThumb(res);
+            document.getElementById("error").classList.replace("d-block", "d-none");
+            document.getElementById("bigPhoto").src = "/static/" + res.jpg_path;
+            document.getElementById("bigPhotoLink").href = "/static/" + res.jpg_path;
+        }
+    }
+
+    function makeNewThumb(data) {
+        let col = document.createElement('div');
+        col.classList.add("col-12", "col-md-6", "col-lg-4", "col-xxl-3", "mb-3");
+        let card = document.createElement('div');
+        card.classList.add("card", "w-100");
+        let thumb = document.createElement('img');
+        thumb.src = "/static/" + data.jpg_path;
+        thumb.classList.add("card-img-top");
+        card.appendChild(thumb);
+        let ul = document.createElement('ul');
+        ul.classList.add("list-group", "list-group-flush");
+        let listFileName = document.createElement('li');
+        listFileName.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let fileName = document.createElement('div');
+        fileName.classList.add("fw-semibold")
+        fileName.innerText = data.file_name;
+        listFileName.appendChild(fileName);
+        let deleteDiv = document.createElement('div');
+        let deleteLink = document.createElement('a');
+        deleteLink.href = "#";
+        deleteLink.innerText = "Delete";
+        deleteDiv.appendChild(deleteLink);
+        listFileName.appendChild(deleteDiv);
+        ul.appendChild(listFileName)
+        let listISO = document.createElement('li');
+        listISO.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let iso = document.createElement('div');
+        iso.innerText = "ISO: " + data.iso;
+        listISO.appendChild(iso);
+        let jpg = document.createElement('div');
+        let jpgLink = document.createElement('a');
+        jpgLink.href = "/static/" + data.jpg_path;
+        jpgLink.target = "_blank";
+        jpgLink.innerText = "JPG";
+        jpg.appendChild(jpgLink);
+        listISO.appendChild(jpg);
+        ul.appendChild(listISO);
+        let listSpeed = document.createElement('li');
+        listSpeed.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let speed = document.createElement('div');
+        speed.innerText = "Speed: " + data.speed;
+        listSpeed.appendChild(speed);
+        let dng = document.createElement('div');
+        if (data.dng_path) {
+            let dngLink = document.createElement('a');
+            dngLink.href = "/static/" + data.dng_path;
+            dngLink.target = "_blank";
+            dngLink.innerText = "DNG";
+            dng.appendChild(dngLink);
+        }
+        listSpeed.appendChild(dng);
+        ul.appendChild(listSpeed);
+        let listWB = document.createElement('li');
+        listWB.classList.add("list-group-item");
+        listWB.innerText = "WB: " + data.wb;
+        ul.appendChild(listWB)
+        card.appendChild(ul);
+        col.appendChild(card);
+        //document.getElementById("thumbs").appendChild(col);
+
+        let thumbs = document.getElementById("thumbs");
+        if (thumbs.firstChild) thumbs.insertBefore(col, thumbs.firstChild);
+        else thumbs.appendChild(col);
+
+
+    }
+</script>
+{% endblock %}
