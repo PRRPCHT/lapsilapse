@@ -30,6 +30,6 @@ I already have a list of evolutions to implement:
 ## Setup
 To setup Lapsilapse:
 - Clone this repo
-- Create a venv with `python -m venv tutorial-env`
+- Create a venv with `python -m venv .venv`
 - Activate the venv with `. .venv/bin/activate`
 - Run `python -m pip install -r requirements.txt` to install the dependencies.
