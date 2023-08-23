@@ -6,6 +6,10 @@ It's a tool I've developed for my personal usage so it's still work in progress 
 
 Lapsilapse has been tested on a Raspberry Pi 4 with 2 GB RAM and I haven't yet seen any performance issues.
 
+## Screenshots
+Timelapse screen:
+![Timelapse screen](./img/timelapse.webp)
+
 ## How does it work?
 Here's a short description of the "happy flow":
 - Install Raspberry Pi OS on a large Micro SD card as curently Lapsilapse doesn't support external drives.
@@ -36,3 +40,6 @@ To setup Lapsilapse:
 - Run `python -m pip install -r requirements.txt` to install the dependencies.
 - Set the env var `export FLASK_APP=server.py`
 - Run the server with `flask run --host=0.0.0.0`
+
+## Licence
+MIT License.
