@@ -10,6 +10,10 @@ Lapsilapse has been tested on a Raspberry Pi 4 with 2 GB RAM and I haven't yet s
 Timelapse screen:
 ![Timelapse screen](./img/timelapse.webp)
 
+## Example
+A not-so-great example that I'll update at some point:
+[![Lapsilapse example](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2FcbA2a0OT1BY)](https://youtu.be/cbA2a0OT1BY)
+
 ## How does it work?
 Here's a short description of the "happy flow":
 - Install Raspberry Pi OS on a large Micro SD card as curently Lapsilapse doesn't support external drives.
