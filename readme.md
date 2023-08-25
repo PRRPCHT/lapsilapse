@@ -12,6 +12,7 @@ Timelapse screen:
 
 ## Example
 A not-so-great example that I'll update at some point:
+
 [![Lapsilapse example](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2FcbA2a0OT1BY)](https://youtu.be/cbA2a0OT1BY)
 
 ## How does it work?
