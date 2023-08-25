@@ -32,7 +32,7 @@ Lapsilapse still has a lot of limitations that will be taken care of at some poi
 ## Evolutions
 I already have a list of evolutions to implement:
 - Allow to change basic settings in Preview mode.
-- ~~Finish the Shoot page.~~ DONE!
+- ~~Finish the Shoot page.~~ DONE! 
 - Have the possibility to use external drives.
 - Improve the Holy Grail process - the current system is a very first version, that needs to be enhanced.
 - Run on a prod ready server e.g. gunicorn.
