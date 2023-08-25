@@ -9,7 +9,7 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from threading import Condition
 from timelapse import Timelapse
-from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number
+from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times
 
 Picamera2.set_logging(Picamera2.ERROR)
 logging.basicConfig(level=logging.INFO,
@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 camera = Picamera2()
 static_dir = "./static/"
+pretty_exposure_times_list = generate_pretty_exposure_times()
 
 is_timelapse_ongoing = False
 timelapse: Timelapse = None
@@ -32,17 +33,23 @@ def shoot():
     day = get_day()
     working_dir = static_dir + day
     os.makedirs(working_dir, exist_ok=True)
-    dir_list = os.listdir(os.path.join(static_dir, day))
-    dir_list.sort(reverse=True)
-    photos = []
-    for item in dir_list:
-        if item.endswith(".jpg"):
-            photo = {}
-            photo["jpg_path"] = os.path.join(day, item)
-            photo["file_name"] = item[:-4]
-            photos.append(photo)
+    # dir_list = os.listdir(os.path.join(static_dir, day))
+    # dir_list.sort(reverse=True)
+    # photos = []
+    # for item in dir_list:
+    #     if item.endswith(".jpg"):
+    #         photo = {}
+    #         photo["jpgPath"] = os.path.join(day, item)
+    #         dngPath = photo["jpgPath"][:-3] + "dng"
+    #         logger.info("dngPath: " + dngPath)
+    #         if os.path.exists(static_dir + dngPath):
+    #             photo["dngPath"] = dngPath
+    #         else:
+    #             photo["dngPath"] = ""
+    #         photo["fileName"] = item[:-4]
+    #         photos.append(photo)
     # photos.reverse()
-    return render_template('shoot.html', active=" shoot", photos=photos)
+    return render_template('shoot.html', active=" shoot")
 
 
 @app.route("/")
@@ -141,21 +148,24 @@ def do_shoot():
     wb - the white balance to set
     file_format - the file format to save the photo in
     """
+    global pretty_exposure_times_list
     toReturn = {}
     try:
         input = request.get_json(force=True)
         iso = input["iso"]
-        speed = input["speed"]
+        exposure_time = input["exposureTime"]
         wb = input["wb"]
         # custom_wb = input["custom_wb"]
-        file_format = input["file_format"]
+        file_format = input["fileFormat"]
 
-        preview_config = camera.create_preview_configuration()
         capture_config = camera.create_still_configuration(
             raw={}, display=None)
-        ctrls = Controls(camera)
-        # ctrls.WhiteBalance = "Sunny"
-
+        if iso != "auto":
+            camera.set_controls({"AnalogueGain": int(iso) / 100})
+        if exposure_time != "auto":
+            camera.set_controls({"ExposureTime": int(exposure_time)})
+        if wb != "auto":
+            camera.set_controls({"AwbMode": get_awb_mode(wb)})
         camera.start()
         time.sleep(2)
         r = camera.switch_mode_capture_request_and_stop(capture_config)
@@ -164,16 +174,16 @@ def do_shoot():
         os.makedirs(static_dir + day, exist_ok=True)
         jpg_path = day + "/" + day_and_time + ".jpg"
         r.save("main", static_dir + jpg_path)
-        if file_format == "DNG":
+        if "dng" in file_format:
             dng_path = day + "/" + day_and_time + ".dng"
             r.save_dng(static_dir + dng_path)
-
-            toReturn["dng_path"] = dng_path
-        toReturn["file_name"] = day_and_time
+            toReturn["dngPath"] = dng_path
+        toReturn["fileName"] = day_and_time
         toReturn["iso"] = iso
-        toReturn["speed"] = speed
-        toReturn["wb"] = wb
-        toReturn["jpg_path"] = jpg_path
+        toReturn["exposureTime"] = pretty_exposure_times_list[int(
+            exposure_time)]
+        toReturn["wb"] = wb.capitalize()
+        toReturn["jpgPath"] = jpg_path
     except RuntimeError as e:
         logger.warning(str(e))
         toReturn["error"] = True

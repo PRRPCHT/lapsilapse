@@ -4,3 +4,4 @@ kill.sh
 __pycache__
 service.sh
 start.sh
+archive

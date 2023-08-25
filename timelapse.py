@@ -1,37 +1,9 @@
 import logging
-import libcamera
 
+from utils import generate_pretty_exposure_times, get_awb_mode
 # Exposure times in ms, from 1/3200s to 30s
 exposure_time_list = [300, 500, 1000, 2000, 4000, 8000, 16666, 33333, 66666, 125000, 250000,
                       500000, 1000000, 2000000, 4000000, 8000000, 12000000, 16000000, 20000000, 25000000, 30000000]
-
-
-def generate_pretty_exposure_times():
-    """ Exposure times in ms to pretty strings, from 1/3200s to 30s """
-    pretty_exposure_times = {}
-    pretty_exposure_times[300] = "1/3200s"
-    pretty_exposure_times[500] = "1/2000s"
-    pretty_exposure_times[1000] = "1/1000s"
-    pretty_exposure_times[2000] = "1/500s"
-    pretty_exposure_times[4000] = "1/250s"
-    pretty_exposure_times[8000] = "1/125s"
-    pretty_exposure_times[16666] = "1/60s"
-    pretty_exposure_times[33333] = "1/30s"
-    pretty_exposure_times[66666] = "1/15s"
-    pretty_exposure_times[125000] = "1/8s"
-    pretty_exposure_times[250000] = "1/4s"
-    pretty_exposure_times[500000] = "1/2s"
-    pretty_exposure_times[1000000] = "1s"
-    pretty_exposure_times[2000000] = "2s"
-    pretty_exposure_times[4000000] = "4s"
-    pretty_exposure_times[8000000] = "8s"
-    pretty_exposure_times[12000000] = "12s"
-    pretty_exposure_times[16000000] = "16s"
-    pretty_exposure_times[20000000] = "20s"
-    pretty_exposure_times[25000000] = "25s"
-    pretty_exposure_times[30000000] = "30s"
-    return pretty_exposure_times
-
 
 pretty_exposure_times_list = generate_pretty_exposure_times()
 
@@ -281,25 +253,3 @@ class Timelapse:
         thumb["path"] = path
         thumb["time"] = date_and_time
         self.thumbs_list.append(thumb)
-
-
-def get_awb_mode(wb):
-    """
-    Get the libcamera white balance value from a string value
-    Arguments: 
-    wb - the wb as a string
-    """
-    if wb == "day":
-        return libcamera.controls.AwbModeEnum.Daylight
-    elif wb == "tungsten":
-        return libcamera.controls.AwbModeEnum.Tungsten
-    elif wb == "cloudy":
-        return libcamera.controls.AwbModeEnum.Cloudy
-    elif wb == "fluorescent":
-        return libcamera.controls.AwbModeEnum.Fluorescent
-    elif wb == "indoor":
-        return libcamera.controls.AwbModeEnum.Indoor
-    elif wb == "custom":
-        return libcamera.controls.AwbModeEnum.Custom
-    else:
-        return libcamera.controls.AwbModeEnum.Daylight
