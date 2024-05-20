@@ -190,6 +190,22 @@ def do_shoot():
     return jsonify(toReturn)
 
 
+@app.route("/deletephoto", methods=['POST'])
+def delete_photo():
+    toReturn = {}
+    input = request.get_json(force=True)
+    logger.info(input)
+    photo_path = static_dir + input["path"]
+    if os.path.exists(photo_path):
+        os.remove(photo_path)
+        logger.info("Deleted photo: " + photo_path)
+        toReturn["error"] = True
+    else:
+        toReturn["error"] = True
+        logger.warning("Photo does not exist: " + photo_path)
+    return jsonify(toReturn)
+
+
 def run_timelapse(input):
     """ 
     Runs the timelapse - is meant to be ran in a thread
