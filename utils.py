@@ -1,5 +1,6 @@
 from datetime import datetime
 import math
+from pathlib import Path
 import psutil
 from PIL import Image, ImageStat
 import libcamera
@@ -128,3 +129,14 @@ def generate_pretty_exposure_times():
     pretty_exposure_times[25000000] = "25s"
     pretty_exposure_times[30000000] = "30s"
     return pretty_exposure_times
+
+
+def create_folder_if_not_exists(folder_path):
+    """
+    Creates a folder if it doesn't already exist
+    Arguments: 
+    folder_path - the path of the folder
+    """
+    folder = Path(folder_path)
+    if not folder.exists():
+        folder.mkdir(parents=True, exist_ok=True)

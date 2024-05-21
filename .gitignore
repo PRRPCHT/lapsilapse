@@ -5,3 +5,6 @@ __pycache__
 service.sh
 start.sh
 archive
+static/photos
+static/timelapse
+logs

@@ -9,15 +9,22 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from threading import Condition
 from timelapse import Timelapse
-from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times
+from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists
+
+
+create_folder_if_not_exists("./static/photos")
+create_folder_if_not_exists("./static/timelapse")
+create_folder_if_not_exists("./logs")
 
 Picamera2.set_logging(Picamera2.ERROR)
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s :: %(levelname)s :: %(message)s', filename=get_day() + '.log')
+                    format='%(asctime)s :: %(levelname)s :: %(message)s', filename='logs/' + get_day() + '.log')
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
 camera = Picamera2()
 static_dir = "./static/"
+photos_dir = static_dir + "photos/"
+timelapse_dir = static_dir + "timelapse/"
 pretty_exposure_times_list = generate_pretty_exposure_times()
 
 is_timelapse_ongoing = False
@@ -31,7 +38,7 @@ def shoot():
     global logger
     camera.stop()
     day = get_day()
-    working_dir = static_dir + day
+    working_dir = photos_dir + day
     os.makedirs(working_dir, exist_ok=True)
     # dir_list = os.listdir(os.path.join(static_dir, day))
     # dir_list.sort(reverse=True)
@@ -171,12 +178,12 @@ def do_shoot():
         r = camera.switch_mode_capture_request_and_stop(capture_config)
         day = get_day()
         day_and_time = get_day_and_time()
-        os.makedirs(static_dir + day, exist_ok=True)
+        os.makedirs(photos_dir + day, exist_ok=True)
         jpg_path = day + "/" + day_and_time + ".jpg"
-        r.save("main", static_dir + jpg_path)
+        r.save("main", photos_dir + jpg_path)
         if "dng" in file_format:
             dng_path = day + "/" + day_and_time + ".dng"
-            r.save_dng(static_dir + dng_path)
+            r.save_dng(photos_dir + dng_path)
             toReturn["dngPath"] = dng_path
         toReturn["fileName"] = day_and_time
         toReturn["iso"] = iso
@@ -201,12 +208,12 @@ def delete_photo():
     toReturn = {}
     input = request.get_json(force=True)
     try:
-        jpg_path = static_dir + input["jpgPath"]
+        jpg_path = photos_dir + input["jpgPath"]
     except:
         jpg_path = None
     is_jpg_deletion_error = not do_delete_photo(jpg_path)
     try:
-        dng_path = static_dir + input["dngPath"]
+        dng_path = photos_dir + input["dngPath"]
     except:
         dng_path = None
     is_dng_deletion_error = not do_delete_photo(dng_path)
@@ -244,10 +251,10 @@ def run_timelapse(input):
     global timelapse
     logger.info("Start timelapse")
     date_and_time = get_day_and_time()
-    working_dir = static_dir + date_and_time + "/"
+    working_dir = timelapse_dir + date_and_time + "/"
     relative_tmp_dir = date_and_time + "/tmp/"
     os.makedirs(working_dir, exist_ok=True)
-    tmp_dir = static_dir + relative_tmp_dir
+    tmp_dir = timelapse_dir + relative_tmp_dir
     os.makedirs(tmp_dir, exist_ok=True)
 
     timelapse = Timelapse(input)
