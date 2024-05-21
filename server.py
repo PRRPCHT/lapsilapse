@@ -192,18 +192,46 @@ def do_shoot():
 
 @app.route("/deletephoto", methods=['POST'])
 def delete_photo():
+    """ 
+    Deletes all versions of a photo - both JPG and DNG versions
+    Arguments (request body): 
+    jpgPath - the path of the JPG file
+    dngPath - the path of the DNG file
+    """
     toReturn = {}
     input = request.get_json(force=True)
-    logger.info(input)
-    photo_path = static_dir + input["path"]
-    if os.path.exists(photo_path):
-        os.remove(photo_path)
-        logger.info("Deleted photo: " + photo_path)
-        toReturn["error"] = True
-    else:
-        toReturn["error"] = True
-        logger.warning("Photo does not exist: " + photo_path)
+    try:
+        jpg_path = static_dir + input["jpgPath"]
+    except:
+        jpg_path = None
+    is_jpg_deletion_error = not do_delete_photo(jpg_path)
+    try:
+        dng_path = static_dir + input["dngPath"]
+    except:
+        dng_path = None
+    is_dng_deletion_error = not do_delete_photo(dng_path)
+    toReturn["error"] = is_jpg_deletion_error or is_dng_deletion_error
     return jsonify(toReturn)
+
+
+def do_delete_photo(photo_path) -> bool:
+    """ 
+    Deletes a photo
+    Arguments: 
+    photo_path - the path of the photo
+    Returns:
+    True if the deletion was a success or if the path was None.
+    """
+    if photo_path != None and os.path.exists(photo_path):
+        try:
+            os.remove(photo_path)
+            logger.info("Deleted photo: " + photo_path)
+            return True
+        except:
+            logger.error("Error while deleting: " + photo_path)
+            return False
+    else:
+        return True
 
 
 def run_timelapse(input):

@@ -189,6 +189,13 @@
     function makeNewThumb(data) {
         let col = document.createElement('div');
         col.classList.add("col-12", "col-md-6", "col-lg-4", "col-xxl-3", "mb-3");
+        col.id = data.fileName;
+        let error = document.createElement('div');
+        error.classList.add("alert", "alert-danger", "d-none");
+        error.role = "alert";
+        error.id = data.fileName + "_error";
+        error.innerHTML = "Error while deleting this photo.";
+        col.appendChild(error);
         let card = document.createElement('div');
         card.classList.add("card", "w-100");
         let thumb = document.createElement('img');
@@ -203,54 +210,79 @@
         fileName.classList.add("fw-semibold")
         fileName.innerText = data.fileName;
         listFileName.appendChild(fileName);
-        // let deleteDiv = document.createElement('div');
-        // let deleteLink = document.createElement('a');
-        // deleteLink.href = "#";
-        // deleteLink.innerText = "Delete";
-        // deleteDiv.appendChild(deleteLink);
-        // listFileName.appendChild(deleteDiv);
         ul.appendChild(listFileName)
-        let listISO = document.createElement('li');
-        listISO.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let isoSpeed = document.createElement('li');
+        isoSpeed.classList.add("list-group-item", "d-flex", "justify-content-between");
         let iso = document.createElement('div');
-        iso.innerText = "ISO: " + data.iso;
-        listISO.appendChild(iso);
-        let jpg = document.createElement('div');
-        let jpgLink = document.createElement('a');
-        jpgLink.href = staticFolder + data.jpgPath;
-        jpgLink.target = "_blank";
-        jpgLink.innerText = "JPG";
-        jpg.appendChild(jpgLink);
-        listISO.appendChild(jpg);
-        ul.appendChild(listISO);
-        let listSpeed = document.createElement('li');
-        listSpeed.classList.add("list-group-item", "d-flex", "justify-content-between");
+        iso.innerText = "ISO " + data.iso;
+        isoSpeed.appendChild(iso);
         let speed = document.createElement('div');
-        speed.innerText = "Exp. time: " + data.exposureTime;
-        listSpeed.appendChild(speed);
-        let dng = document.createElement('div');
+        speed.innerText = data.exposureTime;
+        isoSpeed.appendChild(speed);
+        ul.appendChild(isoSpeed);
+        let listActions = document.createElement('li');
+        listActions.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let wbDiv = document.createElement('div');
+        wbDiv.innerText = "WB: " + data.wb;
+        listActions.appendChild(wbDiv);
+        let actionsDiv = document.createElement('div');
+        actionsDiv.classList.add("d-flex", "justify-content-between");
+        let deleteDiv = document.createElement('div');
+        let deleteLink = document.createElement('a');
+        deleteLink.href = "javascript:void(0)";
+        deleteLink.innerText = "Delete";
+        deleteLink.addEventListener('click', () => { deletePhoto(data.fileName, data.jpgPath, data.dngPath) });
+        deleteDiv.appendChild(deleteLink);
+        actionsDiv.appendChild(deleteDiv);
+        if (data.jpgPath) {
+            let jpg = document.createElement('div');
+            let jpgLink = document.createElement('a');
+            jpgLink.classList.add("ms-3");
+            jpgLink.href = staticFolder + data.jpgPath;
+            jpgLink.target = "_blank";
+            jpgLink.innerText = "JPG";
+            jpg.appendChild(jpgLink);
+            actionsDiv.appendChild(jpg);
+        }
         if (data.dngPath) {
+            let dng = document.createElement('div');
             let dngLink = document.createElement('a');
+            dngLink.classList.add("ms-3");
             dngLink.href = staticFolder + data.dngPath;
             dngLink.target = "_blank";
             dngLink.innerText = "DNG";
             dng.appendChild(dngLink);
+            actionsDiv.appendChild(dng);
         }
-        listSpeed.appendChild(dng);
-        ul.appendChild(listSpeed);
-        let listWB = document.createElement('li');
-        listWB.classList.add("list-group-item");
-        listWB.innerText = "WB: " + data.wb;
-        ul.appendChild(listWB)
+        listActions.appendChild(actionsDiv);
+        ul.appendChild(listActions)
         card.appendChild(ul);
         col.appendChild(card);
-        //document.getElementById("thumbs").appendChild(col);
 
         let thumbs = document.getElementById("thumbs");
         if (thumbs.firstChild) thumbs.insertBefore(col, thumbs.firstChild);
         else thumbs.appendChild(col);
+    }
 
-
+    /**
+     * Handles the click on the delete button.
+     * @param {string} elementID The thumbnail's data.
+     * @param {string} jpgPath The path of the JPG file.
+     * @param {string} dngPath The path of the DNG file.
+     */
+    async function deletePhoto(elementID, jpgPath, dngPath) {
+        let body = { jpgPath: jpgPath, dngPath: dngPath };
+        let resp = await fetch("/deletephoto", {
+            method: "POST",
+            body: JSON.stringify(body),
+        });
+        let res = await resp.json();
+        console.log(res);
+        if (res.error) {
+            document.getElementById(elementID + "_error").classList.replace("d-none", "d-block");
+        } else {
+            document.getElementById(elementID).remove();
+        }
     }
 </script>
 {% endblock %}
