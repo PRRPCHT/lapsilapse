@@ -49,11 +49,11 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-9 col-12 d-none d-lg-block">
+            <div class="col-12 col-lg-6 col-xl-9 d-none d-lg-block">
                 <a href="#" target="_blank" id="bigPhotoLink"><img class="img-fluid mb-4"
                         src="{{url_for('static', filename = 'placeholder.png')}}" id="bigPhoto" /></a>
             </div>
-            <div class="col-lg-3 col-12">
+            <div class="col-12 col-lg-6 col-xl-3">
                 <div class="row">
                     <div class="col-12">
                         <div class="input-group mb-3">
@@ -207,7 +207,7 @@
         let listFileName = document.createElement('li');
         listFileName.classList.add("list-group-item", "d-flex", "justify-content-between");
         let fileName = document.createElement('div');
-        fileName.classList.add("fw-semibold")
+        fileName.classList.add("fw-semibold", "text-truncate")
         fileName.innerText = data.fileName;
         listFileName.appendChild(fileName);
         ul.appendChild(listFileName)
@@ -223,11 +223,13 @@
         let listActions = document.createElement('li');
         listActions.classList.add("list-group-item", "d-flex", "justify-content-between");
         let wbDiv = document.createElement('div');
-        wbDiv.innerText = "WB: " + data.wb;
+        wbDiv.classList.add("text-truncate");
+        wbDiv.innerText = "WB " + data.wb;
         listActions.appendChild(wbDiv);
         let actionsDiv = document.createElement('div');
         actionsDiv.classList.add("d-flex", "justify-content-between");
         let deleteDiv = document.createElement('div');
+        deleteDiv.classList.add("ms-2");
         let deleteLink = document.createElement('a');
         deleteLink.href = "javascript:void(0)";
         deleteLink.innerText = "Delete";
@@ -236,8 +238,8 @@
         actionsDiv.appendChild(deleteDiv);
         if (data.jpgPath) {
             let jpg = document.createElement('div');
+            jpg.classList.add("ms-2");
             let jpgLink = document.createElement('a');
-            jpgLink.classList.add("ms-3");
             jpgLink.href = staticFolder + data.jpgPath;
             jpgLink.target = "_blank";
             jpgLink.innerText = "JPG";
@@ -246,8 +248,8 @@
         }
         if (data.dngPath) {
             let dng = document.createElement('div');
+            dng.classList.add("ms-2");
             let dngLink = document.createElement('a');
-            dngLink.classList.add("ms-3");
             dngLink.href = staticFolder + data.dngPath;
             dngLink.target = "_blank";
             dngLink.innerText = "DNG";
