@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}Gallery{% endblock %}
+
+{% block content %}
+{% set photos = '/static/photos/' %}
+<section>
+
+    {% for day, photos in gallery.items() %}
+    <div class="container mb-3">
+        <div class="row mb-3 pt-2">
+            <div class="col">
+                <h3>{{ day }}</h3>
+            </div>
+        </div>
+        <div class="row">
+            {% for photo in photos | reverse %}
+            <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+                <div class="card w-100">
+                    <img src="/static/photos/{{ photo.jpg_path }}" class="card-img-top">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="fw-semibold text-truncate">{{ photo.name }}</div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div>ISO {{ photo.iso }}</div>
+                            <div>{{ photo.exposure_time }}</div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div class="text-truncate">WB {{ photo.white_balance }}</div>
+                            <div class="d-flex justify-content-between">
+                                {% if photo.jpg_path is not none %}
+                                <div class="ms-2"><a href="/static/photos/{{ photo.jpg_path }}">JPG</a></div>
+                                {% endif %}
+                                {% if photo.dng_path is not none %}
+                                <div class="ms-2"><a href="/static/photos/{{ photo.dng_path }}">DNG</a></div>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}

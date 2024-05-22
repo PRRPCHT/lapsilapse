@@ -1,4 +1,5 @@
 import io
+import json
 import logging
 import os
 import threading
@@ -10,7 +11,7 @@ from picamera2.outputs import FileOutput
 from threading import Condition
 from timelapse import Timelapse
 from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists
-
+from photo_repository import PhotoRepository, Photo
 
 create_folder_if_not_exists("./static/photos")
 create_folder_if_not_exists("./static/timelapse")
@@ -26,6 +27,8 @@ static_dir = "./static/"
 photos_dir = static_dir + "photos/"
 timelapse_dir = static_dir + "timelapse/"
 pretty_exposure_times_list = generate_pretty_exposure_times()
+photo_repository = PhotoRepository(photos_dir)
+photo_repository.load_from_json()
 
 is_timelapse_ongoing = False
 timelapse: Timelapse = None
@@ -38,25 +41,14 @@ def shoot():
     global logger
     camera.stop()
     day = get_day()
-    working_dir = photos_dir + day
-    os.makedirs(working_dir, exist_ok=True)
-    # dir_list = os.listdir(os.path.join(static_dir, day))
-    # dir_list.sort(reverse=True)
-    # photos = []
-    # for item in dir_list:
-    #     if item.endswith(".jpg"):
-    #         photo = {}
-    #         photo["jpgPath"] = os.path.join(day, item)
-    #         dngPath = photo["jpgPath"][:-3] + "dng"
-    #         logger.info("dngPath: " + dngPath)
-    #         if os.path.exists(static_dir + dngPath):
-    #             photo["dngPath"] = dngPath
-    #         else:
-    #             photo["dngPath"] = ""
-    #         photo["fileName"] = item[:-4]
-    #         photos.append(photo)
-    # photos.reverse()
     return render_template('shoot.html', active=" shoot")
+
+
+@app.route("/gallery")
+def gallery():
+    """ Handles the display of the gallery page """
+    gallery = photo_repository.organize_photos_by_date()
+    return render_template('gallery.html', active=" gallery", gallery=gallery)
 
 
 @app.route("/")
@@ -178,11 +170,14 @@ def do_shoot():
         r = camera.switch_mode_capture_request_and_stop(capture_config)
         day = get_day()
         day_and_time = get_day_and_time()
-        os.makedirs(photos_dir + day, exist_ok=True)
-        jpg_path = day + "/" + day_and_time + ".jpg"
+        # os.makedirs(photos_dir + day, exist_ok=True)
+        # jpg_path = day + "/" + day_and_time + ".jpg"
+        jpg_path = day_and_time + ".jpg"
         r.save("main", photos_dir + jpg_path)
+        dng_path = None
         if "dng" in file_format:
-            dng_path = day + "/" + day_and_time + ".dng"
+            # dng_path = day + "/" + day_and_time + ".dng"
+            dng_path = day_and_time + ".dng"
             r.save_dng(photos_dir + dng_path)
             toReturn["dngPath"] = dng_path
         toReturn["fileName"] = day_and_time
@@ -191,6 +186,9 @@ def do_shoot():
             exposure_time)]
         toReturn["wb"] = wb.capitalize()
         toReturn["jpgPath"] = jpg_path
+        photo = Photo(name=day_and_time, iso=iso, speed=exposure_time, exposure_time=pretty_exposure_times_list[int(exposure_time)],
+                      white_balance=wb.capitalize(), capture_date=day, jpg_path=jpg_path, dng_path=dng_path)
+        photo_repository.add_photo(photo)
     except RuntimeError as e:
         logger.warning(str(e))
         toReturn["error"] = True
@@ -218,6 +216,8 @@ def delete_photo():
         dng_path = None
     is_dng_deletion_error = not do_delete_photo(dng_path)
     toReturn["error"] = is_jpg_deletion_error or is_dng_deletion_error
+    if not toReturn["error"]:
+        photo_repository.remove_photo()
     return jsonify(toReturn)
 
 
