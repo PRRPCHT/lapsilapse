@@ -195,8 +195,8 @@ def do_shoot():
     return jsonify(toReturn)
 
 
-@app.route("/deletephoto", methods=['POST'])
-def delete_photo():
+@app.route("/deletephoto_old", methods=['POST'])
+def delete_photo_old():
     """ 
     Deletes all versions of a photo - both JPG and DNG versions
     Arguments (request body): 
@@ -218,6 +218,38 @@ def delete_photo():
     toReturn["error"] = is_jpg_deletion_error or is_dng_deletion_error
     if not toReturn["error"]:
         photo_repository.remove_photo()
+    return jsonify(toReturn)
+
+
+@app.route("/deletephoto", methods=['POST'])
+def delete_photo():
+    """ 
+    Deletes all versions of a photo - both JPG and DNG versions
+    Arguments (request body): 
+    name - the name of the photo
+    """
+    toReturn = {}
+    input = request.get_json(force=True)
+    try:
+        name = input["name"]
+        photo = photo_repository.get_photo(name)
+        logger.info("Photo to delete: " + name)
+    except:
+        toReturn["error"] = True
+        return jsonify(toReturn)
+    try:
+        jpg_path = photos_dir + photo.jpg_path
+    except:
+        jpg_path = None
+    is_jpg_deletion_error = not do_delete_photo(jpg_path)
+    try:
+        dng_path = photos_dir + photo.dng_path
+    except:
+        dng_path = None
+    is_dng_deletion_error = not do_delete_photo(dng_path)
+    toReturn["error"] = is_jpg_deletion_error or is_dng_deletion_error
+    if not toReturn["error"]:
+        photo_repository.remove_photo(name)
     return jsonify(toReturn)
 
 

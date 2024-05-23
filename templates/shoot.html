@@ -189,7 +189,7 @@
     function makeNewThumb(data) {
         let col = document.createElement('div');
         col.classList.add("col-12", "col-md-6", "col-lg-4", "col-xxl-3", "mb-3");
-        col.id = data.fileName;
+        col.id = data.fileName + "_card";
         let error = document.createElement('div');
         error.classList.add("alert", "alert-danger", "d-none");
         error.role = "alert";
@@ -233,7 +233,7 @@
         let deleteLink = document.createElement('a');
         deleteLink.href = "javascript:void(0)";
         deleteLink.innerText = "Delete";
-        deleteLink.addEventListener('click', () => { deletePhoto(data.fileName, data.jpgPath, data.dngPath) });
+        deleteLink.addEventListener('click', () => { deletePhoto(data.fileName) });
         deleteDiv.appendChild(deleteLink);
         actionsDiv.appendChild(deleteDiv);
         if (data.jpgPath) {
@@ -269,11 +269,9 @@
     /**
      * Handles the click on the delete button.
      * @param {string} elementID The thumbnail's data.
-     * @param {string} jpgPath The path of the JPG file.
-     * @param {string} dngPath The path of the DNG file.
      */
-    async function deletePhoto(elementID, jpgPath, dngPath) {
-        let body = { jpgPath: jpgPath, dngPath: dngPath };
+    async function deletePhoto(elementID) {
+        let body = { name: elementID };
         let resp = await fetch("/deletephoto", {
             method: "POST",
             body: JSON.stringify(body),
@@ -283,7 +281,7 @@
         if (res.error) {
             document.getElementById(elementID + "_error").classList.replace("d-none", "d-block");
         } else {
-            document.getElementById(elementID).remove();
+            document.getElementById(elementID + "_card").remove();
         }
     }
 </script>

@@ -58,3 +58,27 @@ function clearFieldInError(fieldName) {
 function fieldInError(fieldName) {
     document.getElementById(fieldName).classList.add("border-danger-subtle", "bg-danger-subtle", "text-danger-emphasis");
 }
+
+/**
+ * Handles the click on the delete button.
+ * @param {string} elementID The thumbnail's data.
+ */
+async function deletePhoto(elementID) {
+    let body = { name: elementID };
+    let resp = await fetch("/deletephoto", {
+        method: "POST",
+        body: JSON.stringify(body),
+    });
+    let res = await resp.json();
+    if (res.error) {
+        document.getElementById(elementID + "_error").classList.replace("d-none", "d-block");
+        return false;
+    } else {
+        try {
+            document.getElementById(elementID + "_card").remove();
+        } catch (error) {
+            console.log("The photo has already been deleted");
+        }
+        return true;
+    }
+}

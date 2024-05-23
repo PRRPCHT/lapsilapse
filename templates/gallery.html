@@ -3,23 +3,113 @@
 
 {% block content %}
 {% set photos = '/static/photos/' %}
-<section>
+<script>
+    let selectedPhotos = [];
+    let daysStatus = new Map();
 
+    /**
+     * Handles the checkboxes' status.
+     * @param {string} id The checkbox's id.
+     */
+    function checkboxHandler(id, day) {
+        let checkbox = document.getElementById(id + "_checkbox");
+        if (checkbox.checked) {
+            selectedPhotos.push(id);
+            daysImpacted.set(day, true);
+        } else {
+            const index = selectedPhotos.indexOf(id);
+            if (index > -1) {
+                selectedPhotos.splice(index, 1);
+            }
+        }
+    }
+
+    /**
+     * Handles the delete buttons.
+     */
+    function handleDelete() {
+        selectedPhotos.forEach((id) => {
+            let isDeleted = deletePhoto(id);
+            if (isDeleted) {
+                let day = id.slice(0, 10);
+                let previous = daysStatus.get(day);
+                daysStatus.set(day, previous - 1);
+            }
+        })
+        selectedPhotos = [];
+        daysStatus.forEach((value, day) => {
+            if (value == 0) {
+                let container = document.getElementById(day + "_container");
+                container.remove();
+            }
+        })
+    }
+
+    /**
+     * Handles the select all buttons.
+     * @param {string} day The day to select.
+     */
+    function selectAll(day) {
+        let items = document.querySelectorAll('.' + day);
+        items.forEach(function (item) {
+            item.checked = true;
+            let id = item.id.replace(/_checkbox$/, '');
+            selectedPhotos.push(id);
+        });
+    }
+
+    /**
+     * Handles the deselect all buttons.
+     * @param {string} day The day to deselect.
+     */
+    function deselectAll(day) {
+        let items = document.querySelectorAll('.' + day);
+        items.forEach(function (item) {
+            item.checked = false;
+            let id = item.id.replace(/_checkbox$/, '');
+            const index = selectedPhotos.indexOf(id);
+            if (index > -1) {
+                selectedPhotos.splice(index, 1);
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let days = document.querySelectorAll('.day-container');
+        days.forEach(function (day) {
+            let photos = day.querySelectorAll('.card');
+            let dayStr = day.id.replace(/_container$/, '');
+            daysStatus.set(dayStr, photos.length);
+        });
+    });
+</script>
+<section>
     {% for day, photos in gallery.items() %}
-    <div class="container mb-3">
+    <div class="container mb-3 day-container" id="{{ day }}_container">
         <div class="row mb-3 pt-2">
-            <div class="col">
-                <h3>{{ day }}</h3>
+            <div class="col d-flex justify-content-between">
+                <div>
+                    <h3>{{ day }}</h3>
+                </div>
+                <div class="d-sm-flex d-lg-none align-items-center hidden-menu">
+                    <button type="button" class="btn btn-link" onclick="selectAll('select-{{ day }}')">All</button>
+                    <button type="button" class="btn btn-link" onclick="deselectAll('select-{{ day }}')">None</button>
+                    <button type="button" class="btn btn-link" onclick="handleDelete()">Delete</button>
+                </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="{{ day }}_row">
             {% for photo in photos | reverse %}
-            <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+            <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3" id="{{ photo.name }}_card">
                 <div class="card w-100">
                     <img src="/static/photos/{{ photo.jpg_path }}" class="card-img-top">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
+                        <li class="list-group-item d-flex justify-content-between">
                             <div class="fw-semibold text-truncate">{{ photo.name }}</div>
+                            <div><input class="form-check-input select-{{ day }}" type="checkbox" value=""
+                                    id="{{ photo.name }}_checkbox"
+                                    onclick="checkboxHandler('{{ photo.name }}', '{{ day }}')">
+                            </div>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <div>ISO {{ photo.iso }}</div>

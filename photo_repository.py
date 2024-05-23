@@ -79,6 +79,7 @@ class PhotoRepository:
         """Removes a photo by its name. Returns True if photo was removed, False if not found."""
         if name in self.photos:
             del self.photos[name]
+            self.save_to_json()
             return True
         return False
 
@@ -91,7 +92,6 @@ class PhotoRepository:
     def load_from_json(self) -> None:
         """Loads all photos from a JSON file within the directory."""
         json_path = os.path.join(self.repository, "photos.json")
-        print(json_path)
         if os.path.exists(json_path):
             need_to_clean_json_file = self.load_from_json_and_check(
                 json_path)
@@ -146,7 +146,6 @@ class PhotoRepository:
                         need_to_clean_json_file = True
                 else:
                     dngExists = False
-                print(f'Name {name} / DNG {dngExists} / JPG {jpgExists}')
                 if jpgExists or dngExists:
                     self.photos[name] = photo
             return need_to_clean_json_file

@@ -3,3 +3,7 @@ body {}
 section:nth-of-type(1) {
     margin-top: 58px;
 }
+
+div.day-container:hover div.hidden-menu {
+    display: flex !important;
+}
