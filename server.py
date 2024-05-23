@@ -159,9 +159,9 @@ def do_shoot():
 
         capture_config = camera.create_still_configuration(
             raw={}, display=None)
-        if iso != "auto":
+        if iso != "Auto":
             camera.set_controls({"AnalogueGain": int(iso) / 100})
-        if exposure_time != "auto":
+        if exposure_time != -1:
             camera.set_controls({"ExposureTime": int(exposure_time)})
         if wb != "auto":
             camera.set_controls({"AwbMode": get_awb_mode(wb)})

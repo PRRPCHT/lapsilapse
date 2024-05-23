@@ -107,7 +107,7 @@ def generate_pretty_exposure_times():
     Exposure times in ms to pretty strings, from 1/3200s to 30s
     """
     pretty_exposure_times = {}
-    pretty_exposure_times["auto"] = "Auto"
+    pretty_exposure_times[-1] = "Exp. Auto"
     pretty_exposure_times[300] = "1/3200s"
     pretty_exposure_times[500] = "1/2000s"
     pretty_exposure_times[1000] = "1/1000s"
