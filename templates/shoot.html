@@ -149,6 +149,7 @@
 </section>
 <script>
     let staticFolder = "{{ url_for('static', filename = 'photos/')}}";
+    let thumbnailsFolder = "{{ url_for('static', filename = 'photos/thumbnails/')}}";
     document.getElementById("shootButton").addEventListener("click", handleShoot);
 
     /**
@@ -199,7 +200,7 @@
         let card = document.createElement('div');
         card.classList.add("card", "w-100");
         let thumb = document.createElement('img');
-        thumb.src = staticFolder + data.jpgPath;
+        thumb.src = thumbnailsFolder + data.jpgPath;
         thumb.classList.add("card-img-top");
         card.appendChild(thumb);
         let ul = document.createElement('ul');

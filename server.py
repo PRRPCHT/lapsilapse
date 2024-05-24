@@ -10,11 +10,17 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from threading import Condition
 from timelapse import Timelapse
-from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists
+from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists, make_thumbnail
 from photo_repository import PhotoRepository, Photo
 
-create_folder_if_not_exists("./static/photos")
-create_folder_if_not_exists("./static/timelapse")
+
+static_dir = "./static/"
+photos_dir = os.path.join(static_dir, "photos/")
+thumbnails_dir = os.path.join(photos_dir, "thumbnails/")
+timelapse_dir = os.path.join(static_dir, "timelapse/")
+create_folder_if_not_exists(photos_dir)
+create_folder_if_not_exists(thumbnails_dir)
+create_folder_if_not_exists(timelapse_dir)
 create_folder_if_not_exists("./logs")
 
 Picamera2.set_logging(Picamera2.ERROR)
@@ -23,9 +29,6 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
 camera = Picamera2()
-static_dir = "./static/"
-photos_dir = static_dir + "photos/"
-timelapse_dir = static_dir + "timelapse/"
 pretty_exposure_times_list = generate_pretty_exposure_times()
 photo_repository = PhotoRepository(photos_dir)
 photo_repository.load_from_json()
@@ -154,7 +157,6 @@ def do_shoot():
         iso = input["iso"]
         exposure_time = input["exposureTime"]
         wb = input["wb"]
-        # custom_wb = input["custom_wb"]
         file_format = input["fileFormat"]
 
         capture_config = camera.create_still_configuration(
@@ -170,13 +172,15 @@ def do_shoot():
         r = camera.switch_mode_capture_request_and_stop(capture_config)
         day = get_day()
         day_and_time = get_day_and_time()
-        # os.makedirs(photos_dir + day, exist_ok=True)
-        # jpg_path = day + "/" + day_and_time + ".jpg"
         jpg_path = day_and_time + ".jpg"
-        r.save("main", photos_dir + jpg_path)
+        jpg_full_path = os.path.join(photos_dir, jpg_path)
+        r.save("main", jpg_full_path)
+        thumbnail_full_path = os.path.join(thumbnails_dir, jpg_path)
+        make_thumbnail(jpg_full_path, thumbnail_full_path, 400, 400)
+        if "jpg" not in file_format:
+            do_delete_photo(jpg_full_path)
         dng_path = None
         if "dng" in file_format:
-            # dng_path = day + "/" + day_and_time + ".dng"
             dng_path = day_and_time + ".dng"
             r.save_dng(photos_dir + dng_path)
             toReturn["dngPath"] = dng_path
@@ -186,6 +190,7 @@ def do_shoot():
             exposure_time)]
         toReturn["wb"] = wb.capitalize()
         toReturn["jpgPath"] = jpg_path
+        toReturn["thumbPath"] = jpg_path
         photo = Photo(name=day_and_time, iso=iso, speed=exposure_time, exposure_time=pretty_exposure_times_list[int(exposure_time)],
                       white_balance=wb.capitalize(), capture_date=day, jpg_path=jpg_path, dng_path=dng_path)
         photo_repository.add_photo(photo)
@@ -250,6 +255,8 @@ def delete_photo():
     toReturn["error"] = is_jpg_deletion_error or is_dng_deletion_error
     if not toReturn["error"]:
         photo_repository.remove_photo(name)
+        thumbnail_path = os.path.join(thumbnails_dir, name + ".jpg")
+        do_delete_photo(thumbnail_path)
     return jsonify(toReturn)
 
 

@@ -141,3 +141,28 @@ def create_folder_if_not_exists(folder_path):
     folder = Path(folder_path)
     if not folder.exists():
         folder.mkdir(parents=True, exist_ok=True)
+
+
+def make_thumbnail(input_path: str, output_path: str, max_width: int, max_height: int) -> None:
+    """
+    Make a thumbnail that will fit within a specified width and height while maintaining aspect ratio.
+    Arguments:
+    input_path (str): The path to the source image file.
+    output_path (str): The path to save the resized image file.
+    max_width (int): The maximum width of the resized image.
+    max_height (int): The maximum height of the resized image.
+    """
+    with Image.open(input_path) as img:
+        # Get current dimensions
+        original_width, original_height = img.size
+
+        # Calculate the ratio and determine new dimensions
+        ratio = min(max_width / original_width, max_height / original_height)
+        new_width = int(original_width * ratio)
+        new_height = int(original_height * ratio)
+
+        # Resize the image
+        resized_img = img.resize((new_width, new_height), Image.LANCZOS)
+
+        # Save the resized image
+        resized_img.save(output_path)
