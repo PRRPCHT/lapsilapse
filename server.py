@@ -294,20 +294,25 @@ def run_timelapse(input):
         filename = "tl_" + \
             pretty_number(timelapse.photos_taken, timelapse.photos_to_take)
         r = camera.switch_mode_capture_request_and_stop(capture_config)
-        r.save("main", tmp_dir + "ref.jpg")
+        reference_path = os.path.join(tmp_dir, "ref.jpg")
+        r.save("main", reference_path)
         if "dng" in timelapse.file_format:
-            r.save_dng(working_dir + filename + ".dng")
-        if "jpg" in timelapse.file_format:
-            r.save("main", working_dir + filename + ".jpg")
-        photo_brightness = brightness(
-            tmp_dir + "ref.jpg")
+            dng_path = os.path.join(working_dir, filename + ".dng")
+            r.save_dng("main", dng_path)
+        jpg_path = os.path.join(working_dir, filename + ".jpg")
+        r.save("main", jpg_path)
+        photo_brightness = brightness(reference_path)
         day_and_time = get_day_and_time()
         timelapse.add_photo(filename, day_and_time, photo_brightness)
         timelapse.update_settings(photo_brightness)
         if (timelapse.can_make_thumbnail()):
-            r.save("main", tmp_dir + filename + ".jpg")
+            thumbnail_path = os.path.join(tmp_dir, filename + ".jpg")
+            # r.save("main", tmp_dir + filename + ".jpg")
+            make_thumbnail(jpg_path, thumbnail_path, 400, 400)
             timelapse.add_thumbnail(
-                relative_tmp_dir + filename + ".jpg", day_and_time)
+                path=thumbnail_path, day_and_time=day_and_time, number=timelapse.photos_taken, iso=timelapse.iso, speed=pretty_exposure_times_list[timelapse.exposure_time], brightness=photo_brightness)
+        if "jpg" not in timelapse.file_format:
+            do_delete_photo(jpg_path)
         logger.info("Sleeping for: " + str(timelapse.get_sleep_time()))
         time.sleep(timelapse.get_sleep_time())
     camera.stop()

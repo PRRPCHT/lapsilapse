@@ -232,15 +232,29 @@
         <div class="row" id="thumbs">
 
         </div>
-        <div class="row">
+        <div class="row mt-4">
             <div class="col-12">
                 <h3>Log</h3>
             </div>
         </div>
         <div class="row">
-            <div class="col-12" id="log">
+            <div class="col-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Time of shoot</th>
+                            <th scope="col">ISO</th>
+                            <th scope="col">Exposure time</th>
+                            <th scope="col">Brightness</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableLog">
+                    </tbody>
+                </table>
             </div>
         </div>
+
     </div>
 </section>
 <script>
@@ -248,6 +262,7 @@
     let photos_number = 0;
     let thumbs_number = 0;
     let isTimelapseOngoing = true; // Set to true to force a refresh at launch
+    let last_photo_number = 0;
     document.addEventListener("DOMContentLoaded", checkTimelapseOngoing);
     document.getElementById("startButton").addEventListener("click", handleStart);
     document.getElementById("stopButton").addEventListener("click", handleStop);
@@ -312,7 +327,6 @@
         document.getElementById("stopButton").classList.remove("d-none");
         document.getElementById("startButton").classList.add("d-none");
         document.getElementById("stopButton").removeAttribute("disabled");
-        document.getElementById("log").innerText = "No data yet";
         var thumbsNode = document.getElementById("thumbs");
         while (thumbsNode.firstChild) {
             thumbsNode.removeChild(thumbsNode.firstChild);
@@ -395,7 +409,6 @@
             method: "GET",
         });
         let data = await resp.json()
-        console.log("Data", data);
         isTimelapseOngoing = data.is_timelapse_ongoing;
         if (data.is_timelapse_ongoing) {
             setInterval(updateTimelapse, 2000);
@@ -414,7 +427,7 @@
             let data = await resp.json()
             if (data.is_timelapse_ongoing) {
                 isTimelapseOngoing = data.is_timelapse_ongoing;
-                document.getElementById("time").innerText = "CPU temp: " + data.cpu_temp + "° / CPU usage: " + data.cpu_usage;
+                document.getElementById("time").innerText = "CPU temp: " + data.cpu_temp + "° / CPU usage: " + data.cpu_usage + "%";
                 document.getElementById("progressBar").innerText = data.photos_taken + " / " + data.photos_to_take;
                 //document.getElementById("progressBar").innerText = data.photos_taken + " / " + data.photos_to_take;
                 let widthPercent = Math.floor((data.photos_taken / data.photos_to_take) * 100);
@@ -423,20 +436,16 @@
                 if (widthPercent == 100) {
                     afterTimelapse();
                 }
-                let log = "";
-                data.photos.forEach(photo => {
-                    log = "Photo " + photo.number + " / " + data.photos_to_take + " - Taken at " + photo.time + " - ISO: " + photo.iso + " - Exposure time: " + photo.speed + " - Brightness: " + photo.brightness + "\n" + log;
-                });
-                document.getElementById("log").innerText = log;
+                updateLog(data.photos, data.photos_to_take);
                 if (thumbs_number == 0 && data.thumbs.length > 0) {
                     data.thumbs.forEach(thumb => {
                         thumbs_number++;
-                        makeNewThumb(thumb);
+                        makeNewThumb(thumb, data.photos_to_take);
                     })
                 }
                 else if (data.thumbs.length > thumbs_number) {
                     thumbs_number++;
-                    makeNewThumb(data.thumbs[data.thumbs.length - 1]);
+                    makeNewThumb(data.thumbs[data.thumbs.length - 1], data.photos_to_take);
                 }
             } else {
                 if (isTimelapseOngoing) {
@@ -446,6 +455,34 @@
                 }
             }
         }
+    }
+
+    function updateLog(photos, photos_to_take) {
+        photos.forEach(photo => {
+            console.log(photo);
+            if (photo.number > last_photo_number) {
+                let row = document.createElement('tr');
+                let number = document.createElement('th');
+                number.scope = "row"
+                number.innerText = photo.number + " / " + photos_to_take
+                row.appendChild(number)
+                let timeOfShoot = document.createElement('td');
+                timeOfShoot.innerText = photo.time
+                row.appendChild(timeOfShoot)
+                let iso = document.createElement('td');
+                iso.innerText = photo.iso
+                row.appendChild(iso)
+                let exposureTime = document.createElement('td');
+                exposureTime.innerText = photo.speed
+                row.appendChild(exposureTime)
+                let brightness = document.createElement('td');
+                brightness.innerText = photo.brightness
+                row.appendChild(brightness)
+                let tableLog = document.getElementById("tableLog");
+                tableLog.insertBefore(row, tableLog.firstChild);
+                last_photo_number = photo.number;
+            }
+        });
     }
 
     /**
@@ -474,19 +511,42 @@
      * Creates a new preview thumbnail.
      * @param {object} data The thumbnail's data.
      */
-    function makeNewThumb(data) {
+    function makeNewThumb(data, photosToTake) {
         let col = document.createElement('div');
         col.classList.add("col-12", "col-md-6", "col-lg-4", "col-xxl-3", "mb-3");
         let card = document.createElement('div');
         card.classList.add("card", "w-100");
         let thumb = document.createElement('img');
-        thumb.src = "/static/" + data.path;
+        thumb.src = data.path;
         thumb.classList.add("card-img-top");
         card.appendChild(thumb);
-        let div = document.createElement('div');
-        div.innerText = data.time;
-        div.classList.add("text-center", "w-100", "p-1");
-        card.appendChild(div);
+        let ul = document.createElement('ul');
+        ul.classList.add("list-group", "list-group-flush");
+        let line1 = document.createElement('li');
+        line1.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let number = document.createElement('div');
+        number.innerText = data.number + "/" + photosToTake;
+        line1.appendChild(number);
+        let time = document.createElement('div');
+        time.innerText = data.time;
+        line1.appendChild(time);
+        ul.appendChild(line1);
+        let line2 = document.createElement('li');
+        line2.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let iso = document.createElement('div');
+        iso.innerText = "ISO " + data.iso;
+        line2.appendChild(iso);
+        let speed = document.createElement('div');
+        speed.innerText = data.speed;
+        line2.appendChild(speed);
+        ul.appendChild(line2);
+        let line3 = document.createElement('li');
+        line3.classList.add("list-group-item", "d-flex", "justify-content-between");
+        let brightness = document.createElement('div');
+        brightness.innerText = "Brightness: " + data.brightness;
+        line3.appendChild(brightness);
+        ul.appendChild(line3);
+        card.appendChild(ul);
         col.appendChild(card);
 
         let thumbs = document.getElementById("thumbs");

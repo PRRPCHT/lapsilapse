@@ -233,7 +233,7 @@ class Timelapse:
         photo["iso"] = self.iso
         photo["speed"] = pretty_exposure_times_list[self.exposure_time]
         photo["number"] = self.photos_taken
-        photo["brightness"] = "{:10.2f}".format(photo_brightness)
+        photo["brightness"] = "{:10.3f}".format(photo_brightness)
         if self.photos_taken == 1:
             self.reference_brightness = photo_brightness
         self.photos_list.append(photo)
@@ -242,7 +242,7 @@ class Timelapse:
         """ Check if a preview thumbnail should be generated """
         return (self.photos_taken == 1) or (self.photos_taken % self.thumbs_ratio == 0) or (self.photos_taken == self.photos_to_take)
 
-    def add_thumbnail(self, path, date_and_time):
+    def add_thumbnail(self, path, number, day_and_time, iso, speed, brightness):
         """
         Add the trhumbnail to the list
         Arguments: 
@@ -251,5 +251,9 @@ class Timelapse:
         """
         thumb = {}
         thumb["path"] = path
-        thumb["time"] = date_and_time
+        thumb["number"] = number
+        thumb["time"] = day_and_time
+        thumb["iso"] = iso
+        thumb["speed"] = speed
+        thumb["brightness"] = "{:10.3f}".format(brightness)
         self.thumbs_list.append(thumb)
