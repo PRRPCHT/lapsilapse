@@ -199,12 +199,11 @@
                         aria-describedby="Previews ratio" id="previews">
                 </div>
             </div>
-            <div class="col-12 col-lg-3">
-            </div>
-            <div class="col-12 col-lg-3">
-            </div>
-            <div class="col-12 col-lg-3">
-            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-lg-3"></div>
+            <div class="col-12 col-lg-3"></div>
+            <div class="col-12 col-lg-3"></div>
             <div class="col-12 col-lg-3">
                 <button type="button" class="btn btn-primary w-100 mb-4 d-block" id="startButton">Start!</button>
                 <button type="button" class="btn btn-danger w-100 mb-4 d-none" id="stopButton">Stop!</button>
@@ -241,12 +240,19 @@
             <div class="col-12">
                 <table class="table">
                     <thead>
-                        <tr>
+                        <tr class="d-none d-md-table-row">
                             <th scope="col">#</th>
-                            <th scope="col">Time of shoot</th>
+                            <th scope="col">Time</th>
                             <th scope="col">ISO</th>
                             <th scope="col">Exposure time</th>
                             <th scope="col">Brightness</th>
+                        </tr>
+                        <tr class="d-md-none">
+                            <th scope="col">#</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">ISO</th>
+                            <th scope="col">Speed</th>
+                            <th scope="col">Bright.</th>
                         </tr>
                     </thead>
                     <tbody id="tableLog">
@@ -343,6 +349,7 @@
         disable("photos_number");
         disable("photos_delay");
         disable("previews");
+        document.getElementById("timelapseSettings").classList.add("d-none", "d-md-block");
     }
 
     /**
@@ -463,21 +470,27 @@
             if (photo.number > last_photo_number) {
                 let row = document.createElement('tr');
                 let number = document.createElement('th');
-                number.scope = "row"
-                number.innerText = photo.number + " / " + photos_to_take
-                row.appendChild(number)
+                number.classList.add("d-none", "d-md-block");
+                number.scope = "row";
+                number.innerText = photo.number + " / " + photos_to_take;
+                row.appendChild(number);
+                let numberSM = document.createElement('th');
+                numberSM.classList.add("d-md-none");
+                numberSM.scope = "row";
+                numberSM.innerText = photo.number;
+                row.appendChild(numberSM);
                 let timeOfShoot = document.createElement('td');
-                timeOfShoot.innerText = photo.time
-                row.appendChild(timeOfShoot)
+                timeOfShoot.innerText = photo.time.substring(photo.time.length - 8);
+                row.appendChild(timeOfShoot);
                 let iso = document.createElement('td');
-                iso.innerText = photo.iso
-                row.appendChild(iso)
+                iso.innerText = photo.iso;
+                row.appendChild(iso);
                 let exposureTime = document.createElement('td');
-                exposureTime.innerText = photo.speed
-                row.appendChild(exposureTime)
+                exposureTime.innerText = photo.speed;
+                row.appendChild(exposureTime);
                 let brightness = document.createElement('td');
-                brightness.innerText = photo.brightness
-                row.appendChild(brightness)
+                brightness.innerText = photo.brightness;
+                row.appendChild(brightness);
                 let tableLog = document.getElementById("tableLog");
                 tableLog.insertBefore(row, tableLog.firstChild);
                 last_photo_number = photo.number;
@@ -492,7 +505,7 @@
         document.getElementById("progressBar").classList.remove("progress-bar-animated");
         document.getElementById("startButton").classList.remove("d-none");
         document.getElementById("stopButton").classList.add("d-none");
-        document.getElementById("timelapseSettings").classList.remove("d-none");
+        document.getElementById("timelapseSettings").classList.remove("d-none", "d-md-block");
         enable("startIso");
         enable("minIso");
         enable("maxIso");
@@ -525,6 +538,7 @@
         let line1 = document.createElement('li');
         line1.classList.add("list-group-item", "d-flex", "justify-content-between");
         let number = document.createElement('div');
+        number.classList.add("d-none", "d-md-block");
         number.innerText = data.number + "/" + photosToTake;
         line1.appendChild(number);
         let time = document.createElement('div');
