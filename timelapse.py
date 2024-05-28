@@ -193,8 +193,6 @@ class Timelapse:
             return
         if self.is_close_to_reference_photo(photo_brightness):
             current_photo_brightness_ratio = self.reference_brightness/photo_brightness
-            logging.info("Fucking off with current_photo_brightness_ratio: " +
-                         str(current_photo_brightness_ratio))
             return
         if self.priority == "iso":
             if (photo_brightness < self.reference_brightness) or (photo_brightness < 30):

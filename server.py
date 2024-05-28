@@ -36,7 +36,6 @@ pretty_exposure_times_list = generate_pretty_exposure_times()
 photo_repository = PhotoRepository(photos_dir)
 photo_repository.load_from_json()
 timelapse_galleries = TimelapseGallery(timelapse_dir)
-logger.info(timelapse_galleries.galleries)
 is_timelapse_ongoing = False
 timelapse: Timelapse = None
 
@@ -47,7 +46,6 @@ def shoot():
     global camera
     global logger
     camera.stop()
-    day = get_day()
     return render_template('shoot.html', active=" shoot")
 
 
@@ -227,7 +225,6 @@ def delete_photo():
     try:
         name = input["name"]
         photo = photo_repository.get_photo(name)
-        logger.info("Photo to delete: " + name)
     except:
         toReturn["error"] = True
         return jsonify(toReturn)
@@ -304,8 +301,6 @@ def run_timelapse(input):
     global timelapse
     logger.info("Start timelapse")
     date_and_time = get_day_and_time()
-    logger.info(date_and_time)
-    logger.info(type(date_and_time))
     working_dir = timelapse_dir + date_and_time + "/"
     relative_tmp_dir = date_and_time + "/tmp/"
     os.makedirs(working_dir, exist_ok=True)
@@ -314,11 +309,6 @@ def run_timelapse(input):
 
     timelapse = Timelapse(input)
     is_timelapse_ongoing = True
-    logger.info(timelapse_galleries.galleries)
-    test = {}
-    test["machin"] = 1
-    test["truc"] = 2
-    logger.info(test)
     timelapse_galleries.add_timelapse(date_and_time)
 
     preview_config = camera.create_preview_configuration()
