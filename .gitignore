@@ -6,5 +6,5 @@ service.sh
 start.sh
 archive
 static/photos
-static/timelapse
+static/timelapses
 logs

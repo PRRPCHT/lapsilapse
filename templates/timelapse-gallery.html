@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% block title %}Timelapse gallery{% endblock %}
+
+{% block content %}
+{% set timelapses = '/static/timelapses/' %}
+<script>
+    let selectedTimelapses = [];
+
+    /**
+     * Handles the checkboxes' status.
+     * @param {string} id The checkbox's id.
+     */
+    function checkboxHandler(id) {
+        let checkbox = document.getElementById(id + "_checkbox");
+        if (checkbox.checked) {
+            selectedTimelapses.push(id);
+        } else {
+            const index = selectedTimelapses.indexOf(id);
+            if (index > -1) {
+                selectedTimelapses.splice(index, 1);
+            }
+        }
+    }
+
+    /**
+     * Handles the delete buttons.
+     */
+    function handleDelete() {
+        selectedTimelapses.forEach((id) => {
+            let isDeleted = deleteTimelapse(id);
+            if (isDeleted) {
+                console.log("Error while deleting: " + id);
+            }
+        })
+        selectedTimelapses = [];
+    }
+
+    /**
+     * Handles the select all buttons.
+     */
+    function selectAll() {
+        let items = document.querySelectorAll('.selectTimelapse');
+        items.forEach(function (item) {
+            item.checked = true;
+            let id = item.id.replace(/_checkbox$/, '');
+            selectedTimelapses.push(id);
+        });
+    }
+
+    /**
+     * Handles the deselect all buttons.
+     */
+    function deselectAll() {
+        let items = document.querySelectorAll('.selectTimelapse');
+        items.forEach(function (item) {
+            item.checked = false;
+            let id = item.id.replace(/_checkbox$/, '');
+            const index = selectedTimelapses.indexOf(id);
+            if (index > -1) {
+                selectedTimelapses.splice(index, 1);
+            }
+        });
+    }
+</script>
+<section>
+    <div class="container mb-3 day-container">
+        <div class="row mb-3 pt-2">
+            <div class="col w-100 d-flex justify-content-between">
+                <div>
+                    <h3>All timelapses</h3>
+                </div>
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-link" onclick="selectAll()">Select all</button>
+                    <button type="button" class="btn btn-link" onclick="deselectAll()">Deselect all</button>
+                    <button type="button" class="btn btn-link" onclick="handleDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3 pt-2">
+            {% for timelapse in gallery | reverse %}
+            {% set photos_count = timelapse.dng_files|length if timelapse.jpg_files == None else
+            timelapse.jpg_files|length %}
+            {% set middle = 1 if photos_count == 1 else (photos_count/2)|round|int %}
+            <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3" id="{{ timelapse.timelapse_date }}_card">
+                <div class="alert alert-danger d-none" id="{{ timelapse.timelapse_date }}_error">Error while deleting
+                    this timelapse.</div>
+                <div class="card w-100">
+                    <img src="/static/timelapses/{{ timelapse.timelapse_date }}/tmp/tl_{{ middle }}.jpg"
+                        class="card-img-top">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div class="fw-semibold text-truncate">{{ timelapse.start_date }}&nbsp;{{
+                                timelapse.start_time }}</div>
+                            <div><input class="form-check-input selectTimelapse" type="checkbox" value=""
+                                    id="{{ timelapse.timelapse_date }}_checkbox"
+                                    onclick="checkboxHandler('{{ timelapse.timelapse_date }}')">
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div>{{ photos_count }} photos</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

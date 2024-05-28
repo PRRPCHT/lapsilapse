@@ -82,3 +82,29 @@ async function deletePhoto(elementID) {
         return true;
     }
 }
+
+
+/**
+ * Handles the click on the delete button.
+ * @param {string} elementID The timelapse's data.
+ */
+async function deleteTimelapse(elementID) {
+    let body = { timelapse: elementID };
+    let resp = await fetch("/deletetimelapse", {
+        method: "POST",
+        body: JSON.stringify(body),
+    });
+    console.log(resp)
+    let res = await resp.json();
+    if (res.error) {
+        document.getElementById(elementID + "_error").classList.replace("d-none", "d-block");
+        return false;
+    } else {
+        try {
+            document.getElementById(elementID + "_card").remove();
+        } catch (error) {
+            console.log("The timelapse has already been deleted");
+        }
+        return true;
+    }
+}

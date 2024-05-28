@@ -7,7 +7,7 @@ import libcamera
 
 
 def get_day_and_time():
-    """ Gets the date and time in a YYYY-MM-DD HH-MM-SS format """
+    """ Gets the date and time in a YYYY-MM-DD_HH-MM-SS format """
     dateTimeObj = datetime.now()
     # VERY IMPORTANT: the date format is later used in the gallery page for the phot deletion. Avoid changing it or refactor.
     return dateTimeObj.strftime("%Y-%m-%d_%H-%M-%S")

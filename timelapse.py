@@ -1,4 +1,8 @@
+from datetime import datetime
 import logging
+import os
+from pathlib import Path
+from typing import Dict, List
 
 from utils import generate_pretty_exposure_times, get_awb_mode
 # Exposure times in ms, from 1/3200s to 30s
@@ -257,3 +261,118 @@ class Timelapse:
         thumb["speed"] = speed
         thumb["brightness"] = "{:10.3f}".format(brightness)
         self.thumbs_list.append(thumb)
+
+
+class TimelapseGalleryItem:
+    def __init__(self, timelapse_date: str, jpg_files: List[str], dng_files: List[str], thumbnails_files: List[str]):
+        try:
+            datetime_info = datetime.strptime(
+                timelapse_date, "%Y-%m-%d_%H-%M-%S")
+            start_date = datetime_info.date()
+            start_time = datetime_info.time()
+        except ValueError:
+            print(
+                f"The creation date does not match the expected format.")
+        self.timelapse_date = timelapse_date
+        self.start_date = start_date
+        self.start_time = start_time
+        self.jpg_files = jpg_files
+        self.dng_files = dng_files
+        self.thumbnails_files = thumbnails_files
+
+    def __repr__(self) -> str:
+        """Return a string representation of the TimelapseGallery."""
+        return (f"TimelapseGallery(start_date={self.start_date}, start_time={self.start_time}, "
+                f"jpg_files={self.jpg_files}, dng_files={self.dng_files})")
+
+    def to_dict(self):
+        """
+        Gets the Photo as a Dict to be serialized.
+        Returns: 
+        The photo as a Dict.
+        """
+        return {
+            "timelapse_date": self.timelapse_date,
+            "start_date": self.start_date,
+            "start_time": self.start_time,
+            "jpg_files": self.jpg_files,
+            "dng_files": self.dng_files,
+            "thumbnails_files": self.thumbnails_files,
+        }
+
+
+class TimelapseGallery:
+    def __init__(self, timelapse_folder: str):
+        self.galleries: Dict[str, TimelapseGalleryItem] = {}
+        timelapse_galleries: Dict[str, TimelapseGalleryItem] = {}
+        base_path = Path(timelapse_folder)
+
+        for folder in base_path.iterdir():
+            if folder.is_dir():
+                jpg_files = [f.name for f in folder.glob('*.jpg')]
+                dng_files = [f.name for f in folder.glob('*.dng')]
+
+                thumbnails_files = []
+                tmp_folder = os.path.join(folder, "tmp")
+                for thumbnails in tmp_folder:
+                    thumbnails_files.append(thumbnails)
+
+                gallery = TimelapseGalleryItem(
+                    timelapse_date=folder.name, jpg_files=jpg_files, dng_files=dng_files, thumbnails_files=thumbnails_files)
+                timelapse_galleries[folder.name] = gallery
+
+        self.galleries = timelapse_galleries
+        # self.galleries = sorted(timelapse_galleries.items(), key=lambda item: datetime.strptime(item[0], '%Y-%m-%d_%H-%M-%S'))
+
+    def list_galleries(self):
+        """
+        Gets a list of galleries in timelapse start time order.
+        Returns: 
+        The list of TimelapseGallery.
+        """
+        return sorted(self.galleries.items(), key=lambda item: datetime.strptime(item[0], '%Y-%m-%d_%H-%M-%S'))
+
+    def add_timelapse(self, timelapse_date: str):
+        """
+        Adds a new empty timelapse.
+        Arguments: 
+        timelapse_date - the date and time the timelapse started, YYYY-MM-DD_HH:mm:ss
+        """
+        gallery = TimelapseGalleryItem(
+            timelapse_date=timelapse_date, jpg_files=[], dng_files=[], thumbnails_files=[])
+        self.galleries[timelapse_date] = gallery
+
+    def add_jpg(self, timelapse_date: str, jpg_path: str):
+        """
+        Adds a jpg file path to an existing gallery.
+        Arguments: 
+        timelapse_date - the date and time the timelapse started, YYYY-MM-DD_HH:mm:ss
+        jpg_path: the path to the file
+        """
+        self.galleries[timelapse_date].jpg_files.append(jpg_path)
+
+    def add_dng(self, timelapse_date: str, dng_path: str):
+        """
+        Adds a dng file path to an existing gallery.
+        Arguments: 
+        timelapse_date - the date and time the timelapse started, YYYY-MM-DD_HH:mm:ss
+        dng_path: the path to the file
+        """
+        self.galleries[timelapse_date].dng_files.append(dng_path)
+
+    def add_thumbnail(self, timelapse_date: str, thumbnail_path: str):
+        """
+        Adds a thumbnail path to an existing gallery.
+        Arguments: 
+        timelapse_date - the date and time the timelapse started, YYYY-MM-DD_HH:mm:ss
+        thumbnail_path: the path to the file
+        """
+        self.galleries[timelapse_date].dng_files.append(thumbnail_path)
+
+    def remove(self, timelapse_date: str):
+        """
+        Removes an existing gallery.
+        Arguments: 
+        timelapse_date - the date and time the timelapse started, YYYY-MM-DD_HH:mm:ss
+        """
+        del self.galleries[timelapse_date]

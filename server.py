@@ -1,15 +1,18 @@
+from datetime import datetime
 import io
 import json
 import logging
 import os
+import shutil
 import threading
 import time
+from typing import Dict
 from flask import Flask, Response, jsonify, render_template, request
 from picamera2 import Picamera2, Controls
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from threading import Condition
-from timelapse import Timelapse
+from timelapse import Timelapse, TimelapseGallery
 from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists, make_thumbnail
 from photo_repository import PhotoRepository, Photo
 
@@ -17,7 +20,7 @@ from photo_repository import PhotoRepository, Photo
 static_dir = "./static/"
 photos_dir = os.path.join(static_dir, "photos/")
 thumbnails_dir = os.path.join(photos_dir, "thumbnails/")
-timelapse_dir = os.path.join(static_dir, "timelapse/")
+timelapse_dir = os.path.join(static_dir, "timelapses/")
 create_folder_if_not_exists(photos_dir)
 create_folder_if_not_exists(thumbnails_dir)
 create_folder_if_not_exists(timelapse_dir)
@@ -32,7 +35,8 @@ camera = Picamera2()
 pretty_exposure_times_list = generate_pretty_exposure_times()
 photo_repository = PhotoRepository(photos_dir)
 photo_repository.load_from_json()
-
+timelapse_galleries = TimelapseGallery(timelapse_dir)
+logger.info(timelapse_galleries.galleries)
 is_timelapse_ongoing = False
 timelapse: Timelapse = None
 
@@ -49,9 +53,20 @@ def shoot():
 
 @app.route("/gallery")
 def gallery():
-    """ Handles the display of the gallery page """
+    """ Handles the display of the photo gallery page """
     gallery = photo_repository.organize_photos_by_date()
-    return render_template('gallery.html', active=" gallery", gallery=gallery)
+    return render_template('gallery.html', active=" photoGallery", gallery=gallery)
+
+
+@app.route("/timelapse-gallery")
+def timelapse_gallery():
+    """ Handles the display of the timelpase gallery page """
+    sorted_galleries = sorted(timelapse_galleries.galleries.items(
+    ), key=lambda item: datetime.strptime(item[0], '%Y-%m-%d_%H-%M-%S'))
+    # Return a list of TimelapseGallery objects in sorted order
+    display_galleries = [gallery for _, gallery in sorted_galleries]
+    # gallery = [gallery for _, gallery in timelapse_galleries.galleries]
+    return render_template('timelapse-gallery.html', active=" timelapseGallery", gallery=display_galleries)
 
 
 @app.route("/")
@@ -254,6 +269,31 @@ def do_delete_photo(photo_path) -> bool:
         return True
 
 
+@app.route("/deletetimelapse", methods=['POST'])
+def delete_timelapse():
+    """ 
+    Deletes a timelapse
+    Arguments (request body): 
+    timelapse - the name of the timelapse
+    """
+    toReturn = {}
+    toReturn["error"] = False
+    input = request.get_json(force=True)
+    timelapse: str = input["timelapse"]
+    timelapse_path = os.path.join(timelapse_dir, timelapse)
+    if timelapse != None and os.path.exists(timelapse_path):
+        try:
+            shutil.rmtree(timelapse_path)
+            logger.info("Timelapse deleted: " + timelapse)
+
+        except:
+            toReturn["error"] = True
+            return jsonify(toReturn)
+        if not toReturn["error"]:
+            timelapse_galleries.remove(timelapse)
+    return jsonify(toReturn)
+
+
 def run_timelapse(input):
     """ 
     Runs the timelapse - is meant to be ran in a thread
@@ -264,6 +304,8 @@ def run_timelapse(input):
     global timelapse
     logger.info("Start timelapse")
     date_and_time = get_day_and_time()
+    logger.info(date_and_time)
+    logger.info(type(date_and_time))
     working_dir = timelapse_dir + date_and_time + "/"
     relative_tmp_dir = date_and_time + "/tmp/"
     os.makedirs(working_dir, exist_ok=True)
@@ -272,6 +314,12 @@ def run_timelapse(input):
 
     timelapse = Timelapse(input)
     is_timelapse_ongoing = True
+    logger.info(timelapse_galleries.galleries)
+    test = {}
+    test["machin"] = 1
+    test["truc"] = 2
+    logger.info(test)
+    timelapse_galleries.add_timelapse(date_and_time)
 
     preview_config = camera.create_preview_configuration()
     capture_config = camera.create_still_configuration(
@@ -299,20 +347,23 @@ def run_timelapse(input):
         if "dng" in timelapse.file_format:
             dng_path = os.path.join(working_dir, filename + ".dng")
             r.save_dng("main", dng_path)
+            timelapse_galleries.add_dng(date_and_time, dng_path)
         jpg_path = os.path.join(working_dir, filename + ".jpg")
         r.save("main", jpg_path)
         photo_brightness = brightness(reference_path)
         day_and_time = get_day_and_time()
         timelapse.add_photo(filename, day_and_time, photo_brightness)
         timelapse.update_settings(photo_brightness)
-        if (timelapse.can_make_thumbnail()):
-            thumbnail_path = os.path.join(tmp_dir, filename + ".jpg")
-            # r.save("main", tmp_dir + filename + ".jpg")
-            make_thumbnail(jpg_path, thumbnail_path, 400, 400)
-            timelapse.add_thumbnail(
-                path=thumbnail_path, day_and_time=day_and_time, number=timelapse.photos_taken, iso=timelapse.iso, speed=pretty_exposure_times_list[timelapse.exposure_time], brightness=photo_brightness)
+        # if (timelapse.can_make_thumbnail()):
+        thumbnail_path = os.path.join(tmp_dir, filename + ".jpg")
+        make_thumbnail(jpg_path, thumbnail_path, 400, 400)
+        timelapse.add_thumbnail(
+            path=thumbnail_path, day_and_time=day_and_time, number=timelapse.photos_taken, iso=timelapse.iso, speed=pretty_exposure_times_list[timelapse.exposure_time], brightness=photo_brightness)
+        timelapse_galleries.add_thumbnail(date_and_time, thumbnail_path)
         if "jpg" not in timelapse.file_format:
             do_delete_photo(jpg_path)
+        else:
+            timelapse_galleries.add_jpg(date_and_time, jpg_path)
         logger.info("Sleeping for: " + str(timelapse.get_sleep_time()))
         time.sleep(timelapse.get_sleep_time())
     camera.stop()
