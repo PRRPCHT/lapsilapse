@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}Timelapse{% endblock %}
+
+{% block content %}
+{% set timelapses = '/static/timelapses/' %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var orderSelect = document.getElementById('order');
+        orderSelect.addEventListener('change', function () {
+            var selectedValue = this.value;
+            const container = document.getElementById('photos');
+            const children = Array.from(container.children);
+            for (let i = children.length - 1; i >= 0; i--) {
+                container.appendChild(children[i]);
+            }
+        });
+    });
+
+</script>
+
+<section>
+    <div class="container mb-3 day-container">
+        <div class="row pt-2">
+            <div class="col w-100 d-flex justify-content-between">
+                <div>
+                    <h3>{{ timelapse.start_date }} @ {{ timelapse.start_time }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2 pt-2">
+            <div class="col w-100 d-flex flex-column flex-md-row justify-content-between">
+                <div class="d-flex flex-column flex-md-row">
+                    <div class="me-md-2 mb-2 mb-md-0">
+                        <select class="form-select" aria-label="Select order" id="order">
+                            <option value="1" selected>Ascending order</option>
+                            <option value="2">Descending order</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-outline-secondary w-100 w-md-auto d-none">Delete</button>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="photos">
+            {% set photos_count = timelapse.thumbnails_files | length %}
+            {% for thumbnail in timelapse.thumbnails_files | reverse %}
+            <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
+                <div class="card w-100">
+                    <img src="/static/timelapses/{{ timelapse.timelapse_date }}/tmp/{{ thumbnail }}"
+                        class="card-img-top">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div class="fw-semibold text-truncate">{{loop.index}}/{{ photos_count }}</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

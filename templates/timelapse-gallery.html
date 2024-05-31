@@ -85,8 +85,10 @@
                 <div class="alert alert-danger d-none" id="{{ timelapse.timelapse_date }}_error">Error while deleting
                     this timelapse.</div>
                 <div class="card w-100">
-                    <img src="/static/timelapses/{{ timelapse.timelapse_date }}/tmp/tl_{{ middle }}.jpg"
-                        class="card-img-top">
+                    <a href="/timelapse-gallery/view/{{ timelapse.timelapse_date }}">
+                        <img src="/static/timelapses/{{ timelapse.timelapse_date }}/tmp/{{ timelapse.thumbnails_files[middle] }}"
+                            class="card-img-top">
+                    </a>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between">
                             <div class="fw-semibold text-truncate">{{ timelapse.start_date }}&nbsp;{{
@@ -97,7 +99,8 @@
                             </div>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
-                            <div>{{ photos_count }} photos</div>
+                            <div><a href="/timelapse-gallery/view/{{ timelapse.timelapse_date }}">{{ photos_count }}
+                                    photos</a></div>
                         </li>
                     </ul>
                 </div>

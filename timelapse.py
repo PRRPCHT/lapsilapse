@@ -312,9 +312,10 @@ class TimelapseGallery:
 
                 thumbnails_files = []
                 tmp_folder = os.path.join(folder, "tmp")
-                for thumbnails in tmp_folder:
-                    thumbnails_files.append(thumbnails)
-
+                entries = os.listdir(tmp_folder)
+                thumbnails_files = [
+                    entry for entry in entries if entry != "ref.jpg" and os.path.isfile(os.path.join(tmp_folder, entry))]
+                thumbnails_files.sort()
                 gallery = TimelapseGalleryItem(
                     timelapse_date=folder.name, jpg_files=jpg_files, dng_files=dng_files, thumbnails_files=thumbnails_files)
                 timelapse_galleries[folder.name] = gallery

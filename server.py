@@ -61,10 +61,17 @@ def timelapse_gallery():
     """ Handles the display of the timelpase gallery page """
     sorted_galleries = sorted(timelapse_galleries.galleries.items(
     ), key=lambda item: datetime.strptime(item[0], '%Y-%m-%d_%H-%M-%S'))
-    # Return a list of TimelapseGallery objects in sorted order
     display_galleries = [gallery for _, gallery in sorted_galleries]
-    # gallery = [gallery for _, gallery in timelapse_galleries.galleries]
     return render_template('timelapse-gallery.html', active=" timelapseGallery", gallery=display_galleries)
+
+
+@app.route("/timelapse-gallery/view/<timelapse>")
+def view(timelapse):
+    """ Handles the display of the timelapse gallery page """
+    display_timelapse = timelapse_galleries.galleries[timelapse]
+    logger.info("display_timelapse.thumbnails_files")
+    logger.info(display_timelapse.thumbnails_files)
+    return render_template('view-timelapse.html', active=" timelapseGallery", timelapse=display_timelapse)
 
 
 @app.route("/")
@@ -321,6 +328,7 @@ def run_timelapse(input):
     camera.set_controls({"AwbMode": timelapse.wb})
     camera.start()
     time.sleep(2)
+    reference_path = os.path.join(tmp_dir, "ref.jpg")
     while is_timelapse_ongoing and timelapse.is_ongoing():
         camera.stop()
         camera.set_controls({"AnalogueGain": timelapse.iso / 100})
@@ -332,7 +340,6 @@ def run_timelapse(input):
         filename = "tl_" + \
             pretty_number(timelapse.photos_taken, timelapse.photos_to_take)
         r = camera.switch_mode_capture_request_and_stop(capture_config)
-        reference_path = os.path.join(tmp_dir, "ref.jpg")
         r.save("main", reference_path)
         if "dng" in timelapse.file_format:
             dng_path = os.path.join(working_dir, filename + ".dng")
@@ -358,6 +365,7 @@ def run_timelapse(input):
         time.sleep(timelapse.get_sleep_time())
     camera.stop()
     time.sleep(2)
+    os.remove(reference_path)
     is_timelapse_ongoing = False
     logger.info("Timelapse finished")
 
