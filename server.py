@@ -356,7 +356,6 @@ def run_timelapse(input):
         day_and_time = get_day_and_time()
         timelapse.add_photo(filename, day_and_time, photo_brightness)
         timelapse.update_settings(photo_brightness)
-        # if (timelapse.can_make_thumbnail()):
         thumbnail_path = os.path.join(tmp_dir, filename + ".jpg")
         make_thumbnail(jpg_path, thumbnail_path, 400, 400)
         timelapse.add_thumbnail(

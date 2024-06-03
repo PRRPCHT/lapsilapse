@@ -193,27 +193,32 @@
                 </div>
             </div>
             <div class="col-12 col-lg-3">
+                <button type="button" class="btn btn-primary w-100 mb-4 d-block" id="startButton">Start!</button>
+                <button type="button" class="btn btn-danger w-100 mb-4 d-none" id="stopButton">Stop!</button>
+            </div>
+            <div class="col-12">
+                <!-- <div class="col-12 col-lg-3">
                 <div class="input-group mb-3">
                     <span class="input-group-text">Previews - 1 every</span>
                     <input type="number" class="form-control" value="10" aria-label="Previews ratio"
                         aria-describedby="Previews ratio" id="previews">
                 </div>
+            </div> -->
             </div>
-        </div>
-        <div class="row">
-            <div class="col-12 col-lg-3"></div>
+            <div class="row">
+                <!-- <div class="col-12 col-lg-3"></div>
             <div class="col-12 col-lg-3"></div>
             <div class="col-12 col-lg-3"></div>
             <div class="col-12 col-lg-3">
                 <button type="button" class="btn btn-primary w-100 mb-4 d-block" id="startButton">Start!</button>
                 <button type="button" class="btn btn-danger w-100 mb-4 d-none" id="stopButton">Stop!</button>
-            </div>
-            <div class="col-12">
-                <div class="alert alert-danger d-none" role="alert" id="errors">
+            </div> -->
+                <div class="col-12">
+                    <div class="alert alert-danger d-none" role="alert" id="errors">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 </section>
 <section id="monitoringSection" class="d-none">
     <div class="container" id="monitoring">
@@ -289,7 +294,8 @@
         let file_format = getValue("file_format");
         let photos_number = getIntValue("photos_number");
         let photos_delay = getIntValue("photos_delay");
-        let previews = getIntValue("previews");
+        //let previews = getIntValue("previews");
+        let previews = 1;
         let body = { priority: priority, startIso: startIso, minIso: minIso, maxIso: maxIso, startExposureTime: startExposureTime, minExposureTime: minExposureTime, maxExposureTime: maxExposureTime, wb: wb, custom_wb: custom_wb, file_format: file_format, photos_delay: photos_delay, photos_number: photos_number, previews: previews };
         if (validateForm(body)) {
 
@@ -348,7 +354,7 @@
         disable("file_format");
         disable("photos_number");
         disable("photos_delay");
-        disable("previews");
+        //disable("previews");
     }
 
     /**
@@ -515,7 +521,7 @@
         enable("file_format");
         enable("photos_number");
         enable("photos_delay");
-        enable("previews");
+        //enable("previews");
     }
 
     /**

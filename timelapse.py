@@ -31,7 +31,6 @@ class Timelapse:
         - file_format - sets the file format to save the photos in - JPEG, DNG or both
         - photos_number - the number of photos to take
         - photos_delay - the delay between two photos, in seconds, must be at least 2 seconds higher than maxExposureTime
-        - previews - the ratio of previews thumbnails to be displayed - 1 every N
         """
         self.iso = int(input["startIso"])
         self.min_iso = int(input["minIso"])
@@ -49,7 +48,6 @@ class Timelapse:
         self.photos_list = []
         self.thumbs_list = []
         self.photos_taken = 0
-        self.thumbs_ratio = int(input["previews"])
         self.reference_brightness = 0.0
 
     #
@@ -239,10 +237,6 @@ class Timelapse:
         if self.photos_taken == 1:
             self.reference_brightness = photo_brightness
         self.photos_list.append(photo)
-
-    def can_make_thumbnail(self):
-        """ Check if a preview thumbnail should be generated """
-        return (self.photos_taken == 1) or (self.photos_taken % self.thumbs_ratio == 0) or (self.photos_taken == self.photos_to_take)
 
     def add_thumbnail(self, path, number, day_and_time, iso, speed, brightness):
         """
