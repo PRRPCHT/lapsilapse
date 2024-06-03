@@ -332,39 +332,8 @@ def run_timelapse(input):
     time.sleep(2)
     reference_path = os.path.join(tmp_dir, "ref.jpg")
     while is_timelapse_ongoing and timelapse.is_ongoing():
-        camera.stop()
-        camera.set_controls({"AnalogueGain": timelapse.iso / 100})
-        camera.set_controls({"ExposureTime": timelapse.exposure_time})
-        camera.start()
-        timelapse.photos_taken = timelapse.photos_taken + 1
-        logger.info("==================== Taking photo: " + str(timelapse.photos_taken) +
-                    "/" + str(timelapse.photos_to_take))
-        filename = "tl_" + \
-            pretty_number(timelapse.photos_taken, timelapse.photos_to_take) + \
-            "_" + get_day_and_time() + "_ISO_" + str(timelapse.iso) + "_" + \
-            pretty_exposure_times_list[timelapse.exposure_time].replace(
-                '/', '-')
-        r = camera.switch_mode_capture_request_and_stop(capture_config)
-        r.save("main", reference_path)
-        if "dng" in timelapse.file_format:
-            dng_path = os.path.join(working_dir, filename + ".dng")
-            r.save_dng("main", dng_path)
-            timelapse_galleries.add_dng(date_and_time, dng_path)
-        jpg_path = os.path.join(working_dir, filename + ".jpg")
-        r.save("main", jpg_path)
-        photo_brightness = brightness(reference_path)
-        day_and_time = get_day_and_time()
-        timelapse.add_photo(filename, day_and_time, photo_brightness)
-        timelapse.update_settings(photo_brightness)
-        thumbnail_path = os.path.join(tmp_dir, filename + ".jpg")
-        make_thumbnail(jpg_path, thumbnail_path, 400, 400)
-        timelapse.add_thumbnail(
-            path=thumbnail_path, day_and_time=day_and_time, number=timelapse.photos_taken, iso=timelapse.iso, speed=pretty_exposure_times_list[timelapse.exposure_time], brightness=photo_brightness)
-        timelapse_galleries.add_thumbnail(date_and_time, thumbnail_path)
-        if "jpg" not in timelapse.file_format:
-            do_delete_photo(jpg_path)
-        else:
-            timelapse_galleries.add_jpg(date_and_time, jpg_path)
+        take_timelapse_photo(capture_config, reference_path,
+                             working_dir, tmp_dir, date_and_time)
         logger.info("Sleeping for: " + str(timelapse.get_sleep_time()))
         time.sleep(timelapse.get_sleep_time())
     camera.stop()
@@ -372,6 +341,51 @@ def run_timelapse(input):
     os.remove(reference_path)
     is_timelapse_ongoing = False
     logger.info("Timelapse finished")
+
+
+def take_timelapse_photo(capture_config: Dict, reference_path: str, working_dir: str, tmp_dir: str, date_and_time: str):
+    """ 
+    Takes a photo for the ongoin timelapse
+    Arguments: 
+    capture_config (Dict) - the capture configuration for the camera
+    reference_path (str) - the path to the reference file for brightness calculation
+    working_dir (str) - the path to the working directory
+    tmp_dir (str) - the path to the tmp directory
+    date_and_time (str) - the start date and time of the timelapse
+    """
+    camera.stop()
+    camera.set_controls({"AnalogueGain": timelapse.iso / 100})
+    camera.set_controls({"ExposureTime": timelapse.exposure_time})
+    camera.start()
+    timelapse.photos_taken = timelapse.photos_taken + 1
+    logger.info("==================== Taking photo: " + str(timelapse.photos_taken) +
+                "/" + str(timelapse.photos_to_take))
+    filename = "tl_" + \
+        pretty_number(timelapse.photos_taken, timelapse.photos_to_take) + \
+        "_" + get_day_and_time() + "_ISO_" + str(timelapse.iso) + "_" + \
+        pretty_exposure_times_list[timelapse.exposure_time].replace(
+            '/', '-')
+    r = camera.switch_mode_capture_request_and_stop(capture_config)
+    r.save("main", reference_path)
+    if "dng" in timelapse.file_format:
+        dng_path = os.path.join(working_dir, filename + ".dng")
+        r.save_dng("main", dng_path)
+        timelapse_galleries.add_dng(date_and_time, dng_path)
+    jpg_path = os.path.join(working_dir, filename + ".jpg")
+    r.save("main", jpg_path)
+    photo_brightness = brightness(reference_path)
+    day_and_time = get_day_and_time()
+    timelapse.add_photo(filename, day_and_time, photo_brightness)
+    timelapse.update_settings(photo_brightness)
+    thumbnail_path = os.path.join(tmp_dir, filename + ".jpg")
+    make_thumbnail(jpg_path, thumbnail_path, 400, 400)
+    timelapse.add_thumbnail(
+        path=thumbnail_path, day_and_time=day_and_time, number=timelapse.photos_taken, iso=timelapse.iso, speed=pretty_exposure_times_list[timelapse.exposure_time], brightness=photo_brightness)
+    timelapse_galleries.add_thumbnail(date_and_time, thumbnail_path)
+    if "jpg" not in timelapse.file_format:
+        do_delete_photo(jpg_path)
+    else:
+        timelapse_galleries.add_jpg(date_and_time, jpg_path)
 
 
 @app.route('/start_timelapse', methods=['POST'])
@@ -401,8 +415,7 @@ def data_from_name(filename: str):
     Extracts data from a timelapse file name.
     Args:
     filename (str): The filename to be analysed.
-    Returns:
-    str: A dict containing:
+    Returns: A dict containing:
     - number: the number of the photo in the sequence, 
     - date: the date the photo was taken,
     - time: the time the photo was taken,
