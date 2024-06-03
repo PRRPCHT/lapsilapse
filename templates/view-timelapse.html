@@ -44,14 +44,26 @@
         </div>
         <div class="row" id="photos">
             {% set photos_count = timelapse.thumbnails_files | length %}
-            {% for thumbnail in timelapse.thumbnails_files | reverse %}
+            {% for thumbnail in timelapse.thumbnails_files %}
+            {% set data = thumbnail | data_from_name %}
             <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3">
                 <div class="card w-100">
                     <img src="/static/timelapses/{{ timelapse.timelapse_date }}/tmp/{{ thumbnail }}"
                         class="card-img-top">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between">
-                            <div class="fw-semibold text-truncate">{{loop.index}}/{{ photos_count }}</div>
+                            <div class="fw-semibold text-truncate">{{ loop.index }}/{{ photos_count }}</div>
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div class="fw-semibold text-truncate">{{ data.date }} @ {{ data.time }}</div>
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div class="text-truncate">ISO {{ data.iso }}</div>
+                            <div class="text-truncate">{{ data.exposure_time | format_exposure_time }}</div>
                         </li>
                     </ul>
                 </div>

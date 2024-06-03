@@ -3,6 +3,7 @@ import io
 import json
 import logging
 import os
+import re
 import shutil
 import threading
 import time
@@ -31,6 +32,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s :: %(levelname)s :: %(message)s', filename='logs/' + get_day() + '.log')
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"]
 camera = Picamera2()
 pretty_exposure_times_list = generate_pretty_exposure_times()
 photo_repository = PhotoRepository(photos_dir)
@@ -338,7 +340,10 @@ def run_timelapse(input):
         logger.info("==================== Taking photo: " + str(timelapse.photos_taken) +
                     "/" + str(timelapse.photos_to_take))
         filename = "tl_" + \
-            pretty_number(timelapse.photos_taken, timelapse.photos_to_take)
+            pretty_number(timelapse.photos_taken, timelapse.photos_to_take) + \
+            "_" + get_day_and_time() + "_ISO_" + str(timelapse.iso) + "_" + \
+            pretty_exposure_times_list[timelapse.exposure_time].replace(
+                '/', '-')
         r = camera.switch_mode_capture_request_and_stop(capture_config)
         r.save("main", reference_path)
         if "dng" in timelapse.file_format:
@@ -390,3 +395,61 @@ def start_timelapse():
             logger.warning(str(e))
             to_return["error"] = str(e)
     return jsonify(to_return)
+
+
+def data_from_name(filename: str):
+    """
+    Extracts data from a timelapse file name.
+    Args:
+    filename (str): The filename to be analysed.
+    Returns:
+    str: A dict containing:
+    - number: the number of the photo in the sequence, 
+    - date: the date the photo was taken,
+    - time: the time the photo was taken,
+    - iso: the ISO value,
+    - exposure_time: the exposure time.
+    """
+    logger.info("In data_from_name")
+    logger.info(filename)
+    pattern = "tl_([0-9]+)_([0-9]{4}-[0-9]{2}-[0-9]{2})_([0-9]{2}-[0-9]{2}-[0-9]{2})_ISO_([0-9]+)_([0-9s-]+).jpg"
+    match = re.match(pattern, filename)
+    if match:
+        number, date, time, iso, exposure_time = match.groups()
+        return {
+            'number': number,
+            'date': date,
+            'time': time,
+            'iso': iso,
+            'exposure_time': exposure_time
+        }
+    pattern = r"tl_([0-9]+)\.jpg"
+    match = re.match(pattern, filename)
+    if match:
+        number = match.groups()
+        return {
+            'number': number,
+            'date': None,
+            'time': None,
+            'iso': None,
+            'exposure_time': None
+        }
+    return None
+
+
+def format_exposure_time(exposure_time: str) -> str:
+    """
+    Replaces all instances of '-' with '/' in the provided exposure_time.
+    Args:
+    exposure_time (str): The string in which to replace dashes with slashes.
+    Returns:
+    str: The modified string with dashes replaced by slashes.
+    """
+    if exposure_time is not None:
+        modified_string = exposure_time.replace('-', '/')
+        return modified_string
+    return None
+
+
+app.jinja_env.filters.update(data_from_name=data_from_name)
+app.jinja_env.filters.update(format_exposure_time=format_exposure_time)
