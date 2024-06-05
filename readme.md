@@ -17,7 +17,7 @@ A not-so-great example that I'll update at some point:
 
 ## How does it work?
 Here's a short description of the "happy flow":
-- Install Raspberry Pi OS on a large Micro SD card as curently Lapsilapse doesn't support external drives.
+- Install Raspberry Pi OS ~~on a large Micro SD card as curently Lapsilapse doesn't support external drives~~.
 - Connect your Pi to a network, or set the Pi as a hotspot.
 - Set up Lapsilapse (see below).
 - Start Lapsilapse.
@@ -26,14 +26,14 @@ Here's a short description of the "happy flow":
 
 ## Known limitations
 Lapsilapse still has a lot of limitations that will be taken care of at some point:
-- Can't use an external drive for storing the timelapse's files.
+- ~~Can't use an external drive for storing the timelapse's files.~~
 - ~~The Shoot page, which allows taking single photos, is not fully developed yet e.g. settings are not effective.~~
 
 ## Evolutions
 I already have a list of evolutions to implement:
 - Allow to change basic settings in Preview mode.
 - ~~Finish the Shoot page.~~ DONE! 
-- Have the possibility to use external drives.
+- ~~Have the possibility to use external drives.~~ 2024-06-05 - DONE! 
 - Improve the Holy Grail process - the current system is a very first version, that needs to be enhanced.
 - Run on a prod ready server e.g. gunicorn.
 
