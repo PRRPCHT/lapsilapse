@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block title %}Timelapse{% endblock %}
+
+{% block content %}
+{% set timelapses = '/static/timelapses/' %}
+
+<section>
+    <div class="container mb-3 day-container">
+        <div class="row pt-2">
+            <div class="col w-100 d-flex justify-content-between">
+                <div>
+                    <h3>Settings</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-2 d-none" id="error">
+            <div class="col w-100 d-flex justify-content-between">
+                <div class="alert alert-danger w-100">
+                    Error while saving the settings file.
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2 pt-2">
+            <div class="col w-100">
+                <label for="photosDirectory" class="form-label">Photos directory</label>
+                <input type="text" class="form-control" id="photosDirectory" placeholder="/path/to/directory"
+                    value="{{ settings.photo_directory }}">
+            </div>
+        </div>
+        <div class="row mb-2 pt-2">
+            <div class="col-12 col-lg-3"></div>
+            <div class="col-12 col-lg-3"></div>
+            <div class="col-12 col-lg-3"></div>
+            <div class="col-12 col-lg-3"><button type="button" class="btn btn-primary w-100"
+                    id="saveButton">Save</button></div>
+        </div>
+
+
+
+    </div>
+</section>
+
+<script>
+    document.getElementById("saveButton").addEventListener("click", handleSave);
+
+    async function handleSave() {
+        console.log("In handleSave()")
+        const photosDirectory = document.getElementById('photosDirectory').value;
+        let body = { photosDirectory: photosDirectory };
+        let resp = await fetch("/saveSettings", {
+            method: "POST",
+            body: JSON.stringify(body),
+        });
+
+        let res = await resp.json();
+        if (res.error) {
+            console.log("error!");
+
+            document.getElementById("error").classList.replace("d-none", "d-block");
+        } else {
+            document.getElementById("error").classList.replace("d-block", "d-none");
+        }
+    }
+</script>
+{% endblock %}

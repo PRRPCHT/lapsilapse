@@ -13,13 +13,16 @@ from picamera2 import Picamera2, Controls
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from threading import Condition
+from settings import Settings
 from timelapse import Timelapse, TimelapseGallery
 from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists, make_thumbnail
 from photo_repository import PhotoRepository, Photo
 
-
+settings = Settings()
+settings.load_from_json()
 static_dir = "./static/"
-target_dir = "/home/pi/lapse/"
+settings.photo_directory = static_dir if settings.photo_directory is None else settings.photo_directory
+target_dir = settings.photo_directory
 static_photos_dir = os.path.join(static_dir, "photos/")
 target_photos_dir = os.path.join(target_dir, "photos/")
 thumbnails_dir = os.path.join(static_photos_dir, "thumbnails/")
@@ -54,6 +57,25 @@ def shoot():
     global logger
     camera.stop()
     return render_template('shoot.html', active=" shoot")
+
+
+@app.route("/settings")
+def showSettings():
+    """ Handles the display of the settings page """
+    return render_template('settings.html', active=" settings", settings=settings)
+
+
+@app.route("/saveSettings", methods=['POST'])
+def saveSettings():
+    toReturn = {"error": False}
+    try:
+        input = request.get_json(force=True)
+        settings.photo_directory = input["photosDirectory"]
+        settings.save_to_json()
+    except RuntimeError as e:
+        logger.warning(str(e))
+        toReturn["error"] = True
+    return jsonify(toReturn)
 
 
 @app.route("/gallery")
