@@ -19,12 +19,17 @@ from photo_repository import PhotoRepository, Photo
 
 
 static_dir = "./static/"
-photos_dir = os.path.join(static_dir, "photos/")
-thumbnails_dir = os.path.join(photos_dir, "thumbnails/")
-timelapse_dir = os.path.join(static_dir, "timelapses/")
-create_folder_if_not_exists(photos_dir)
+target_dir = "/home/pi/lapse/"
+static_photos_dir = os.path.join(static_dir, "photos/")
+target_photos_dir = os.path.join(target_dir, "photos/")
+thumbnails_dir = os.path.join(static_photos_dir, "thumbnails/")
+static_timelapse_dir = os.path.join(static_dir, "timelapses/")
+target_timelapse_dir = os.path.join(target_dir, "timelapses/")
+create_folder_if_not_exists(static_photos_dir)
+create_folder_if_not_exists(target_photos_dir)
 create_folder_if_not_exists(thumbnails_dir)
-create_folder_if_not_exists(timelapse_dir)
+create_folder_if_not_exists(static_timelapse_dir)
+create_folder_if_not_exists(target_timelapse_dir)
 create_folder_if_not_exists("./logs")
 
 Picamera2.set_logging(Picamera2.ERROR)
@@ -35,9 +40,9 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"]
 camera = Picamera2()
 pretty_exposure_times_list = generate_pretty_exposure_times()
-photo_repository = PhotoRepository(photos_dir)
+photo_repository = PhotoRepository(static_photos_dir)
 photo_repository.load_from_json()
-timelapse_galleries = TimelapseGallery(timelapse_dir)
+timelapse_galleries = TimelapseGallery(static_timelapse_dir)
 is_timelapse_ongoing = False
 timelapse: Timelapse = None
 
@@ -195,16 +200,16 @@ def do_shoot():
         day = get_day()
         day_and_time = get_day_and_time()
         jpg_path = day_and_time + ".jpg"
-        jpg_full_path = os.path.join(photos_dir, jpg_path)
+        jpg_full_path = os.path.join(target_photos_dir, jpg_path)
         r.save("main", jpg_full_path)
         thumbnail_full_path = os.path.join(thumbnails_dir, jpg_path)
-        make_thumbnail(jpg_full_path, thumbnail_full_path, 400, 400)
+        make_thumbnail(jpg_full_path, thumbnail_full_path, 1000, 1000)
         if "jpg" not in file_format:
             do_delete_photo(jpg_full_path)
         dng_path = None
         if "dng" in file_format:
             dng_path = day_and_time + ".dng"
-            r.save_dng(photos_dir + dng_path)
+            r.save_dng(target_photos_dir + dng_path)
             toReturn["dngPath"] = dng_path
         toReturn["fileName"] = day_and_time
         toReturn["iso"] = iso
@@ -238,12 +243,12 @@ def delete_photo():
         toReturn["error"] = True
         return jsonify(toReturn)
     try:
-        jpg_path = photos_dir + photo.jpg_path
+        jpg_path = static_photos_dir + photo.jpg_path
     except:
         jpg_path = None
     is_jpg_deletion_error = not do_delete_photo(jpg_path)
     try:
-        dng_path = photos_dir + photo.dng_path
+        dng_path = static_photos_dir + photo.dng_path
     except:
         dng_path = None
     is_dng_deletion_error = not do_delete_photo(dng_path)
@@ -286,10 +291,10 @@ def delete_timelapse():
     toReturn["error"] = False
     input = request.get_json(force=True)
     timelapse: str = input["timelapse"]
-    timelapse_path = os.path.join(timelapse_dir, timelapse)
-    if timelapse != None and os.path.exists(timelapse_path):
+    static_timelapse_path = os.path.join(static_timelapse_dir, timelapse)
+    if timelapse != None and os.path.exists(static_timelapse_path):
         try:
-            shutil.rmtree(timelapse_path)
+            shutil.rmtree(static_timelapse_path)
             logger.info("Timelapse deleted: " + timelapse)
 
         except:
@@ -310,11 +315,14 @@ def run_timelapse(input):
     global timelapse
     logger.info("Start timelapse")
     date_and_time = get_day_and_time()
-    working_dir = timelapse_dir + date_and_time + "/"
-    relative_tmp_dir = date_and_time + "/tmp/"
-    os.makedirs(working_dir, exist_ok=True)
-    tmp_dir = timelapse_dir + relative_tmp_dir
+    static_working_dir = os.path.join(static_timelapse_dir, date_and_time)
+    # relative_tmp_dir = date_and_time + "/tmp/"
+    os.makedirs(static_working_dir, exist_ok=True)
+    tmp_dir = os.path.join(static_working_dir, "tmp")
+    logger.info(tmp_dir)
     os.makedirs(tmp_dir, exist_ok=True)
+    target_working_dir = os.path.join(target_timelapse_dir, date_and_time)
+    os.makedirs(target_working_dir, exist_ok=True)
 
     timelapse = Timelapse(input)
     is_timelapse_ongoing = True
@@ -333,7 +341,7 @@ def run_timelapse(input):
     reference_path = os.path.join(tmp_dir, "ref.jpg")
     while is_timelapse_ongoing and timelapse.is_ongoing():
         take_timelapse_photo(capture_config, reference_path,
-                             working_dir, tmp_dir, date_and_time)
+                             target_working_dir, tmp_dir, date_and_time)
         logger.info("Sleeping for: " + str(timelapse.get_sleep_time()))
         time.sleep(timelapse.get_sleep_time())
     camera.stop()

@@ -178,8 +178,8 @@
             document.getElementById("todaysPhotos").classList.replace("d-none", "d-block");
             makeNewThumb(res);
             document.getElementById("error").classList.replace("d-block", "d-none");
-            document.getElementById("bigPhoto").src = staticFolder + res.jpgPath;
-            document.getElementById("bigPhotoLink").href = staticFolder + res.jpgPath;
+            document.getElementById("bigPhoto").src = thumbnailsFolder + res.jpgPath;
+            document.getElementById("bigPhotoLink").href = thumbnailsFolder + res.jpgPath;
         }
     }
 
@@ -199,10 +199,14 @@
         col.appendChild(error);
         let card = document.createElement('div');
         card.classList.add("card", "w-100");
+        let jpgLink = document.createElement('a');
+        jpgLink.href = thumbnailsFolder + data.jpgPath;
+        jpgLink.target = "_blank";
         let thumb = document.createElement('img');
         thumb.src = thumbnailsFolder + data.jpgPath;
         thumb.classList.add("card-img-top");
-        card.appendChild(thumb);
+        jpgLink.appendChild(thumb);
+        card.appendChild(jpgLink);
         let ul = document.createElement('ul');
         ul.classList.add("list-group", "list-group-flush");
         let listFileName = document.createElement('li');
@@ -237,26 +241,26 @@
         deleteLink.addEventListener('click', () => { deletePhoto(data.fileName) });
         deleteDiv.appendChild(deleteLink);
         actionsDiv.appendChild(deleteDiv);
-        if (data.jpgPath) {
-            let jpg = document.createElement('div');
-            jpg.classList.add("ms-2");
-            let jpgLink = document.createElement('a');
-            jpgLink.href = staticFolder + data.jpgPath;
-            jpgLink.target = "_blank";
-            jpgLink.innerText = "JPG";
-            jpg.appendChild(jpgLink);
-            actionsDiv.appendChild(jpg);
-        }
-        if (data.dngPath) {
-            let dng = document.createElement('div');
-            dng.classList.add("ms-2");
-            let dngLink = document.createElement('a');
-            dngLink.href = staticFolder + data.dngPath;
-            dngLink.target = "_blank";
-            dngLink.innerText = "DNG";
-            dng.appendChild(dngLink);
-            actionsDiv.appendChild(dng);
-        }
+        // if (data.jpgPath) {
+        //     let jpg = document.createElement('div');
+        //     jpg.classList.add("ms-2");
+        //     let jpgLink = document.createElement('a');
+        //     jpgLink.href = staticFolder + data.jpgPath;
+        //     jpgLink.target = "_blank";
+        //     jpgLink.innerText = "JPG";
+        //     jpg.appendChild(jpgLink);
+        //     actionsDiv.appendChild(jpg);
+        // }
+        // if (data.dngPath) {
+        //     let dng = document.createElement('div');
+        //     dng.classList.add("ms-2");
+        //     let dngLink = document.createElement('a');
+        //     dngLink.href = staticFolder + data.dngPath;
+        //     dngLink.target = "_blank";
+        //     dngLink.innerText = "DNG";
+        //     dng.appendChild(dngLink);
+        //     actionsDiv.appendChild(dng);
+        // }
         listActions.appendChild(actionsDiv);
         ul.appendChild(listActions)
         card.appendChild(ul);
