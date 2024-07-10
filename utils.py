@@ -1,9 +1,12 @@
 from datetime import datetime
 import math
+import os
 from pathlib import Path
 import psutil
 from PIL import Image, ImageStat
 import libcamera
+import logging
+logger = logging.getLogger(__name__)
 
 
 def get_day_and_time():
@@ -166,3 +169,33 @@ def make_thumbnail(input_path: str, output_path: str, max_width: int, max_height
 
         # Save the resized image
         resized_img.save(output_path)
+
+
+def check_directory_permissions(directory_path):
+    """
+    Check if the application has read and write permissions in the specified directory.
+
+    Args:
+    directory_path (str): The path to the directory to check.
+
+    Returns:
+    bool: True if the application has both read and write permissions, False otherwise.
+    """
+    # Check if the directory exists
+    if not os.path.exists(directory_path):
+        logger.error(f"Error: The directory {directory_path} does not exist.")
+        return False
+
+    # Check for read permission
+    if not os.access(directory_path, os.R_OK):
+        logger.error(
+            f"Access denied: The directory {directory_path} cannot be read.")
+        return False
+
+    # Check for write permission
+    if not os.access(directory_path, os.W_OK):
+        logger.error(
+            f"Access denied: The directory {directory_path} cannot be written to.")
+        return False
+
+    return True

@@ -15,7 +15,7 @@
         </div>
         <div class="row pt-2 d-none" id="error">
             <div class="col w-100 d-flex justify-content-between">
-                <div class="alert alert-danger w-100">
+                <div class="alert alert-danger w-100" id="cause">
                     Error while saving the settings file.
                 </div>
             </div>
@@ -55,7 +55,9 @@
         let res = await resp.json();
         if (res.error) {
             console.log("error!");
-
+            if (res.cause) {
+                document.getElementById("cause").innerText = res.cause;
+            }
             document.getElementById("error").classList.replace("d-none", "d-block");
         } else {
             document.getElementById("error").classList.replace("d-block", "d-none");

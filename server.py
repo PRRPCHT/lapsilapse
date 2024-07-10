@@ -15,7 +15,7 @@ from picamera2.outputs import FileOutput
 from threading import Condition
 from settings import Settings
 from timelapse import Timelapse, TimelapseGallery
-from utils import brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists, make_thumbnail
+from utils import check_directory_permissions, brightness, get_cpu_temp, get_cpu_usage, get_day, get_day_and_time, pretty_number, get_awb_mode, generate_pretty_exposure_times, create_folder_if_not_exists, make_thumbnail
 from photo_repository import PhotoRepository, Photo
 
 settings = Settings()
@@ -70,11 +70,18 @@ def saveSettings():
     toReturn = {"error": False}
     try:
         input = request.get_json(force=True)
-        settings.photo_directory = input["photosDirectory"]
-        settings.save_to_json()
+        photo_directory = input["photosDirectory"]
+        isPathOK = check_directory_permissions(photo_directory)
+        if isPathOK:
+            settings.photo_directory = photo_directory
+            settings.save_to_json()
+        else:
+            toReturn["error"] = True
+            toReturn["cause"] = "Directory doesn't exist or can't be read or written."
     except RuntimeError as e:
         logger.warning(str(e))
         toReturn["error"] = True
+        toReturn["cause"] = "Error while saving the settings."
     return jsonify(toReturn)
 
 

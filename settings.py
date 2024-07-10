@@ -11,7 +11,6 @@ class Settings:
         data = {"photo_directory": self.photo_directory}
         with open(os.path.join(".", "settings.json"), "w") as f:
             json.dump(data, f, indent=4)
-            print("settings saved")
 
     def load_from_json(self) -> None:
         """Loads the settings from a JSON file within the directory."""
