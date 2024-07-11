@@ -35,7 +35,7 @@ I already have a list of evolutions to implement:
 - ~~Finish the Shoot page.~~ DONE! 
 - ~~Have the possibility to use external drives.~~ 2024-06-05 - DONE! 
 - Improve the Holy Grail process - the current system is a very first version, that needs to be enhanced.
-- Run on a prod ready server e.g. gunicorn.
+- ~~Run on a prod ready server e.g. gunicorn.~~ 2024-07-11 - DONE !
 
 ## Setup
 To setup Lapsilapse:
@@ -43,8 +43,7 @@ To setup Lapsilapse:
 - Create a venv with `python -m venv .venv`
 - Activate the venv with `. .venv/bin/activate`
 - Run `python -m pip install -r requirements.txt` to install the dependencies.
-- Set the env var `export FLASK_APP=server.py`
-- Run the server with `flask run --host=0.0.0.0`
+- Run the server with `./start.sh`
 
 ## Licence
 MIT License.

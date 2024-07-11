@@ -1,9 +1,6 @@
-kill.sh
 .venv
 .vscode
 __pycache__
-service.sh
-start.sh
 archive
 static/photos
 static/timelapses
