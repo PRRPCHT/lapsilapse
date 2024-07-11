@@ -67,10 +67,18 @@ def showSettings():
 
 @app.route("/saveSettings", methods=['POST'])
 def saveSettings():
+    """ 
+    Handles the display of the settings page 
+
+    Arguments (request body): 
+    photosDirectory - the directory where the photos and timelapses will be saved
+    """
     toReturn = {"error": False}
     try:
         input = request.get_json(force=True)
         photo_directory = input["photosDirectory"]
+        if not photo_directory.endswith('/'):
+            photo_directory += '/'
         isPathOK = check_directory_permissions(photo_directory)
         if isPathOK:
             settings.photo_directory = photo_directory
