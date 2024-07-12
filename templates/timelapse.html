@@ -327,10 +327,23 @@
     }
 
     /**
+     * Clears all the children of a given element.
+     * @param {string} elementID The ID of the element.
+     */
+    function clearChildren(elementID) {
+        var element = document.getElementById(elementID);
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+    }
+
+
+    /**
      * Handles the preparations to start a timelapse.
      * @param {number} photosToTake The number of photos to take.
      */
     function prepapreForTimelapse(photosToTake) {
+        last_photo_number = 0;
         document.getElementById("status").innerText = "Photos taken: 0 / " + photosToTake;
         document.getElementById("progressBar").innerText = "0 / " + photosToTake;
         document.getElementById("time").innerText = "CPU temp:";
@@ -339,10 +352,8 @@
         document.getElementById("stopButton").classList.remove("d-none");
         document.getElementById("startButton").classList.add("d-none");
         document.getElementById("stopButton").removeAttribute("disabled");
-        var thumbsNode = document.getElementById("thumbs");
-        while (thumbsNode.firstChild) {
-            thumbsNode.removeChild(thumbsNode.firstChild);
-        }
+        clearChildren("thumbs");
+        clearChildren("tableLog");
         disable("startIso");
         disable("minIso");
         disable("maxIso");
@@ -484,7 +495,7 @@
                 numberSM.innerText = photo.number;
                 row.appendChild(numberSM);
                 let timeOfShoot = document.createElement('td');
-                timeOfShoot.innerText = photo.time.substring(photo.time.length - 8);
+                timeOfShoot.innerText = photo.time.substring(photo.time.length - 8).replaceAll("-", ":");
                 row.appendChild(timeOfShoot);
                 let iso = document.createElement('td');
                 iso.innerText = photo.iso;
