@@ -467,8 +467,6 @@ def data_from_name(filename: str):
     - iso: the ISO value,
     - exposure_time: the exposure time.
     """
-    logger.info("In data_from_name")
-    logger.info(filename)
     pattern = "tl_([0-9]+)_([0-9]{4}-[0-9]{2}-[0-9]{2})_([0-9]{2}-[0-9]{2}-[0-9]{2})_ISO_([0-9]+)_([0-9s-]+).jpg"
     match = re.match(pattern, filename)
     if match:
