@@ -471,7 +471,6 @@
 
     function updateLog(photos, photos_to_take) {
         photos.forEach(photo => {
-            console.log(photo);
             if (photo.number > last_photo_number) {
                 let row = document.createElement('tr');
                 let number = document.createElement('th');
