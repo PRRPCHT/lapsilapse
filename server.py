@@ -1,6 +1,6 @@
 from datetime import datetime
 import io
-import json
+import libcamera
 import logging
 import os
 import re
@@ -224,7 +224,7 @@ def do_shoot():
         file_format = input["fileFormat"]
 
         capture_config = camera.create_still_configuration(
-            raw={}, display=None)
+            raw={}, display=None, colour_space=libcamera.ColorSpace.Srgb())
         if iso != "Auto":
             camera.set_controls({"AnalogueGain": int(iso) / 100})
         if exposure_time != -1:
