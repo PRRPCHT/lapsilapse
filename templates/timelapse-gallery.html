@@ -79,7 +79,7 @@
         <div class="row mb-3 pt-2">
             {% for timelapse in gallery | reverse %}
             {% set photos_count = timelapse.thumbnails_files|length %}
-            {% set middle = 1 if photos_count == 1 else (photos_count/2)|round|int %}
+            {% set middle = 0 if photos_count == 1 else (photos_count/2)|round|int %}
             <div class="col-12 col-md-6 col-lg-4 col-xxl-3 mb-3" id="{{ timelapse.timelapse_date }}_card">
                 <div class="alert alert-danger d-none" id="{{ timelapse.timelapse_date }}_error">Error while deleting
                     this timelapse.</div>

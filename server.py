@@ -426,7 +426,7 @@ def take_timelapse_photo(capture_config: Dict, reference_path: str, working_dir:
     make_thumbnail(jpg_path, thumbnail_path, 400, 400)
     timelapse.add_thumbnail(
         path=thumbnail_path, day_and_time=day_and_time, number=timelapse.photos_taken, iso=timelapse.iso, speed=pretty_exposure_times_list[timelapse.exposure_time], brightness=photo_brightness)
-    timelapse_galleries.add_thumbnail(date_and_time, thumbnail_path)
+    timelapse_galleries.add_thumbnail(date_and_time, filename + ".jpg")
     if "jpg" not in timelapse.file_format:
         do_delete_photo(jpg_path)
     else:

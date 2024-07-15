@@ -275,7 +275,7 @@ class TimelapseGalleryItem:
     def __repr__(self) -> str:
         """Return a string representation of the TimelapseGallery."""
         return (f"TimelapseGallery(start_date={self.start_date}, start_time={self.start_time}, "
-                f"jpg_files={self.jpg_files}, dng_files={self.dng_files})")
+                f"thumbnails_files={len(self.thumbnails_files)}, jpg_files={len(self.jpg_files)}, dng_files={len(self.dng_files)})")
 
     def to_dict(self):
         """
@@ -361,7 +361,7 @@ class TimelapseGallery:
         timelapse_date - the date and time the timelapse started, YYYY-MM-DD_HH:mm:ss
         thumbnail_path: the path to the file
         """
-        self.galleries[timelapse_date].dng_files.append(thumbnail_path)
+        self.galleries[timelapse_date].thumbnails_files.append(thumbnail_path)
 
     def remove(self, timelapse_date: str):
         """
